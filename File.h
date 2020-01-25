@@ -8,9 +8,29 @@
 #include "ComparisonEngine.h"
 
 class Record;
-
 using namespace std;
 
+/*
+The second header file (File.h) contains the basic definitions of the Page and File classes. 
+
+The Page class is the in-memory realization of a database page; a page is essentially
+a collection of database records. The File class is a disk-based container class that
+essentially holds an array of pages. 
+
+Your DBFile will be built on top of the Page and File classes, so that when someone inserts
+a bunch of records into your DBFile, your DBFile in turn will group those records into instances
+of the Page class, and then store those instances of the Page class into an instance of the File class.
+The details of how this grouping and storage are done will vary based upon the file type, but in the 
+case of a simple heap file, you’ll want to have a single instance of the Page class stored within your DBFile
+object to act as a one-page buffer. 
+
+During a series of writes, after that instance of the Page class fills, you write its contents to disk using 
+an instance of the File class that you’ll use to actually store the DBFile. During reads, you use that instance
+of the Page class to read records from disk, one page at a time, and then return the records to the caller as 
+they are requested. Of course, you’ll have to deal with the case when someone switches back and forth between 
+reads and writes, in which case you may have to write this page to disk before it is full, assuming that it is dirty.
+
+*/
 class Page {
 private:
 	TwoWayList <Record> *myRecs;
@@ -78,7 +98,5 @@ public:
 	int Close ();
 
 };
-
-
 
 #endif

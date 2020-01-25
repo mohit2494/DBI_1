@@ -22,6 +22,11 @@
 //	3) Byte offset to the start of the att in position numAtts
 //	4) Bits encoding the record's data
 
+// The first header file (Record.h) contains the basic definition of the Record class.
+// This class implements the actual objects that your database will store, and so your
+// DBFile will contain objects that are instances of this class. This class stores all of the
+// data in each record as a flat bit string.
+
 class Record {
 
 friend class ComparisonEngine;

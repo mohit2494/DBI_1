@@ -8,6 +8,18 @@
 #include "ComparisonEngine.h"
 
 
+/*
+	The third header file (Comparison.h) implements many of the standard operations
+	that must be provided by the database record manager; that is, they will allow your
+	database to semantically interpret the records that it stores. There is one class called CNF,
+	which is constructed from the parse tree for a conjunctive normal form predicate. This
+	class tells the database system how to apply a user-supplied conjunctive normal form
+	expression to a given records. There is another class called OrderMaker (which you
+	won’t use in the first assignment) that encodes a less-than/greater-than comparison across
+	two records; this class is used for sorting operations that you’ll write starting with
+	assignment two.
+*/
+
 // This stores an individual comparison that is part of a CNF
 class Comparison {
 

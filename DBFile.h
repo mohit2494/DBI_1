@@ -32,9 +32,6 @@ public:
 	**/
 	void MoveFirst ();
 
-
-
-
 	/**
 		Note that this function should actually consume addMe, 
 		so that after addMe has been put into the file, it cannot

@@ -13,6 +13,14 @@ class Comparison;
 class OrderMaker;
 class CNF;
 
+/*
+        The fourth header file (ComparisonEngine.h) contains code that actually uses the
+        classes that are provided in Comparison.h to perform comparisons. For example, the
+        ComparisonEngine class will allow you to actually use a CNF object to see
+        whether or not a given record has been accepted by the underlying conjunctive normal
+        form predicate.
+*/
+
 class ComparisonEngine {
 
 private:

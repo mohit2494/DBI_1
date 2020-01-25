@@ -9,6 +9,17 @@
 #include "Comparison.h"
 #include "ComparisonEngine.h"
 
+/*
+Finally, the fifth header file (Schema.h) encodes a few functions that load up a relation
+schema from the database catalog. An example database catalog is given in the file
+catalog. In fact, this catalog gives the relation schemas for several of the tables from
+the “TPC-H” databases schema, which you will become very familiar with over the
+semester. The TPC-H is a very well-known standard database benchmark that we will
+make extensive use of in this class. One of the first things that you should do when you
+start on this assignment is to check out http://www.tpc.org/tpch, and at least look over the
+PDF document describing this schema.
+*/
+
 struct Attribute {
 
 	char *name;
