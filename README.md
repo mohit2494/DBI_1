@@ -8,7 +8,7 @@ Branching rules:
 1) Assignment Release Branches starts with r_*
 2) Any Feature will start with f_*
 3) Any Bugfix will start with bf_*
-4  We will make merge the whole release branch to master once the branch is complete
+4) We will make merge the whole release branch to master once the branch is complete
 
 ==================
 Test driver for Assignment 1 heap DBFile (spring 2011 dbi)
