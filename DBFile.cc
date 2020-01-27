@@ -14,7 +14,16 @@ DBFile::DBFile () {
 }
 
 int DBFile::Create (const char *f_path, fType f_type, void *startup) {
-
+    switch (f_type) {
+        case <#constant#>:
+            <#statements#>
+            break;
+            
+        default:
+            return 0;
+    }
+    this->myFile.Open(0,f_path);
+    
 }
 
 void DBFile::Load (Schema &f_schema, const char *loadpath) {
