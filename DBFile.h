@@ -10,9 +10,20 @@
 
 typedef enum {heap, sorted, tree} fType;
 
+// class to take care of meta data
+
+class Preference{
+    
+}
+
+
 // stub DBFile header..replace it with your own DBFile.h 
 
 class DBFile {
+private:
+    File myFile;
+    Page myPage;
+    Record myRecord;
 
 public:
 	DBFile (); 
