@@ -10,6 +10,7 @@ Branching rules:
 3) Any Bugfix will start with bf_*
 4) We will make merge the whole release branch to master once the branch is complete
 
+Assignment Details:
 ==================
 Test driver for Assignment 1 heap DBFile (spring 2011 dbi)
 
