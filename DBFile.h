@@ -24,15 +24,20 @@ public:
 	void Load (Schema &myschema, const char *loadpath);
 
 	/**
-		In order to add records to the file, 
-		the function Add is used. In the case of 
-		the unordered heap file that you are implementing 
-		in this assignment, this function simply adds the 
-		new record to the end of the file
+		Each DBFile instance has a “pointer” to the current record 
+		in the file. By default, this pointer is at the first record
+		in the file, but it can move in response to record retrievals.
+		The following function forces the pointer to correspond to the
+		first record in the file.
 	**/
 	void MoveFirst ();
 
 	/**
+	 	In order to add records to the file, 
+		the function Add is used. In the case of 
+		the unordered heap file that you are implementing 
+		in this assignment, this function simply adds the 
+		new record to the end of the file
 		Note that this function should actually consume addMe, 
 		so that after addMe has been put into the file, it cannot
 		be used again. There are then two functions that allow 
