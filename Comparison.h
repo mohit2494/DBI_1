@@ -76,7 +76,7 @@ public:
 class Record;
 
 // This structure stores a CNF expression that is to be evaluated
-// during query execution
+// during query executionCNF
 
 class CNF {
 

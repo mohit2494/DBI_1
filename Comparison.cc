@@ -427,12 +427,11 @@ void CNF :: GrowFromParseTree (struct AndList *parseTree, Schema *leftSchema,
 
 
 // this is the version that only deals with unary relational selection predicates
-void CNF :: GrowFromParseTree (struct AndList *parseTree, Schema *mySchema, 
-	Record &literal) {
+void CNF :: GrowFromParseTree (struct AndList *parseTree, Schema *mySchema, Record &literal) {
 
 	CNF &cnf = *this;
 
-	// as kind of a hack, the literal record is built up insiide of a text file,
+	// as kind of a hack, the literal record is built up inside of a text file,
 	// where it will be read in from subsequently
 	FILE *outRecFile = fopen ("sdafdsfFFDSDA", "w");
 

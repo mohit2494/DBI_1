@@ -1,5 +1,4 @@
 #include "Record.h"
-
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,7 +16,6 @@ Record :: ~Record () {
 	bits = NULL;
 
 }
-
 
 int Record :: SuckNextRecord (Schema *mySchema, FILE *textFile) {
 

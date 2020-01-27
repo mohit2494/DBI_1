@@ -1,6 +1,5 @@
 #include "File.h"
 #include "TwoWayList.cc"
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -8,7 +7,6 @@
 #include <string.h>
 #include <iostream>
 #include <stdlib.h>
-
 
 
 Page :: Page () {
@@ -227,7 +225,6 @@ void File :: AddPage (Page *addMe, off_t whichPage) {
 #endif
 }
 
-
 void File :: Open (int fileLen, char *fName) {
 
 	// figure out the flags for the system open call
@@ -282,5 +279,3 @@ int File :: Close () {
 	return curLength;
 	
 }
-
-
