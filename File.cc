@@ -265,6 +265,18 @@ off_t File :: GetLength () {
 	return curLength;
 }
 
+int File :: IsFileOpen () {
+    if (myFilDes>0){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+void File :: MoveToFirst () {
+    lseek (myFilDes, 0, SEEK_SET);
+}
 
 int File :: Close () {
 

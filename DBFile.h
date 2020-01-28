@@ -13,8 +13,11 @@ typedef enum {heap, sorted, tree} fType;
 // class to take care of meta data
 
 class Preference{
-    
-}
+public:
+    void Loads();
+    void Dumps();
+    bool FindFilePath (const char *f_path);
+};
 
 
 // stub DBFile header..replace it with your own DBFile.h 
@@ -24,13 +27,10 @@ private:
     File myFile;
     Page myPage;
     Record myRecord;
+    Preference myPreference;
 
 public:
-	DBFile (); 
-
-	int Create (const char *fpath, fType file_type, void *startup);
-	int Open (const char *fpath);
-	int Close ();
+	DBFile ();
 
 	void Load (Schema &myschema, const char *loadpath);
 
@@ -100,7 +100,7 @@ public:
 		but you will use for assignment two. The return value from Create is a 1 on success
 		and a zero on failure. 
 	**/
-	int Create (char *name, fType myType, void *startup); 
+    int Create (const char *fpath, fType file_type, void *startup);
 
 	/**
 		Next, we have Open. This function assumes that the DBFile already exists and has previously
@@ -109,12 +109,11 @@ public:
 		to an auxiliary text file that it will also open at startup. The return value is a 1 on success
 		and a zero on failure. 
 	**/
-	int Open(char *name);
-
+    int Open (const char *fpath);
 	/**
 		Next, Close simply closes the file. The return value is a 1 on success and a zero on failure.
 	**/ 
-	int Close();
+    int Close ();
 
 	/**
 		Finally, the Load function bulk loads the DBFile instance from a text file, appending new data
