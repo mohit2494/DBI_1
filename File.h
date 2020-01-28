@@ -34,7 +34,6 @@ reads and writes, in which case you may have to write this page to disk before i
 class Page {
 private:
 	TwoWayList <Record> *myRecs;
-	
 	int numRecs;
 	int curSizeInBytes;
 

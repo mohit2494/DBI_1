@@ -28,6 +28,8 @@ private:
     Page myPage;
     Record myRecord;
     Preference myPreference;
+	char* myFilePath;
+	off_t currentPageCount;
 
 public:
 	DBFile ();

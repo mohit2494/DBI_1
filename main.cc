@@ -19,6 +19,17 @@ int main () {
 		exit (1);
 	}
 
+	// create DBFile Object
+
+	// DBFile.load
+
+	// 
+
+
+
+
+
+
 	// suck up the schema from the file
 	Schema lineitem ("catalog", "lineitem");
 
@@ -50,30 +61,33 @@ int main () {
 	// how to use it, then you are ready to implement assignment one. 
 
 	// Step 1. Load a page up full of records
-	Page tempPage;
+	Page writePage;
 
 	bool pageFull = false;
 	// Step 2. Check while appending whether the page is full or not
 	while(temp.SuckNextRecord(&mySchema, tableFile)==1 && (!pageFull)) {
 		
 		// Step 2. Check while appending whether the page is full or not
-		if(!tempPage.Append(&temp))
+		if(!writePage.Append(&temp))
 			pageFull = true;
 	}
-	
-	cout << "Page Full" << pageFull << endl;
+	string isPageFull = pageFull ? "Yes" : "No";
+	cout << "Page Full : " << isPageFull << endl;
 
 	// using this file for 
 	File tempFile;
+	tempFile.Open(0, "tempFileName.txt");
+
 	off_t whichPage = 0;
 
 	// Step 3. Write the page to disk
-	tempFile.AddPage(&tempPage,whichPage);
+	tempFile.AddPage(&writePage,whichPage);
 
 	whichPage = 0;
+	Page readPage;
 
 	// Step 4. Retrieve page from disk
-	tempFile.GetPage(&tempPage, whichPage);
+	tempFile.GetPage(&readPage, whichPage);
 
 
 	/*** step 1 of assignment complete ***/
