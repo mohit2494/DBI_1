@@ -14,7 +14,7 @@ typedef enum {heap, sorted, tree} fType;
 
 class Preference{
     
-}
+};
 
 
 // stub DBFile header..replace it with your own DBFile.h 
@@ -24,10 +24,11 @@ private:
     File myFile;
     Page myPage;
     Record myRecord;
+	char* myFilePath;
+	off_t currentPageCount;
 
 public:
 	DBFile (); 
-
 	int Create (const char *fpath, fType file_type, void *startup);
 	int Open (const char *fpath);
 	int Close ();
