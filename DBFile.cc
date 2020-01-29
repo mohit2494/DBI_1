@@ -155,9 +155,11 @@ int DBFile::GetNext (Record &fetchme, CNF &cnf, Record &literal) {
 
     if (myPreference.pageBufferMode == WRITE){
         ComparisonEngine comp;
+        bool readFlag ;
+        bool compareFlag;
         do{
-            bool readFlag = GetNext(&fetchme);
-            bool compareFlag = comp.Compare (&fetchme, &literal, &cnf)
+            readFlag = GetNext(fetchme);
+            compareFlag = comp.Compare (&fetchme, &literal, &cnf);
         }
         while(readFlag && !compareFlag);
         if(!readFlag){
