@@ -60,7 +60,7 @@ public:
 	void DumpPreference();
 	int GetPageLocationToWrite();
 	void Load (Schema &myschema, const char *loadpath);
-
+	
 	/**
 		Each DBFile instance has a “pointer” to the current record 
 		in the file. By default, this pointer is at the first record

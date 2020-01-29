@@ -63,13 +63,19 @@ DBFile::~DBFile () {
 
 int DBFile::Create (const char *f_path, fType f_type, void *startup) {
     if (f_type == heap){
+            LoadPreference(f_path);
             char *fName = strdup(f_path);
             myFile.Open(0,fName);
-            myPreference.currentPage = myFile.GetLength();
             return 1;
     }
     return 0;
 }
+
+int GetPageLocationToWrite() {
+    int pageLocation = myFile.GetLength();
+    return !pageLocation ? 0 : pageLocation-1;
+}
+
 
 /**
  * the Load function bulk loads the DBFile instance from a text file,
@@ -237,12 +243,12 @@ void DBFile::LoadPreference(const char* filePath) {
 
 void DBFile::DumpPreference(){
     ofstream file;
-    file.open("aaa.txt",ios::out);
+    file.open(myPreference.preferenceFilePath,ios::out);
     if(!file)
     {
-      cout<<"Error in creating file.."<<endl;
-      return 0;
+      cerr<<"Error in opening file for writing.."<<endl;
+      exit(1);
     }
-    file.write((char*)&myPreference,sizeof(Preference));   
+    file.write((char*)&myPreference,sizeof(Preference));
     file.close();
 }
