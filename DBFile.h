@@ -128,6 +128,5 @@ public:
 		to it using the SuckNextRecord function from Record.h. The character string passed to Load is 
 		the name of the data file to bulk load. 
 	**/
-	void Load (Schema &mySchema, char *loadMe); 
 };
 #endif
