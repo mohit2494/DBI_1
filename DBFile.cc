@@ -71,7 +71,7 @@ int DBFile::Open (const char *f_path) {
         exit(1);
     }
     char * fName = strdup(f_path);
-    myFile.Open(1,f_path);
+    myFile.Open(1,fName);
     if(myFile.IsFileOpen()){
         return 1;
     }

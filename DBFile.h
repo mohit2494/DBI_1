@@ -15,8 +15,10 @@ typedef enum {READ, WRITE} BufferMode;
 // class to take care of meta data
 
 class Preference{
-    BufferMode pageBufferMode;
 public:
+    // @TODO change access labels
+    BufferMode pageBufferMode;
+    off_t currentPage;
     void Loads();
     void Dumps();
     bool FindFilePath (const char *f_path);
@@ -36,6 +38,7 @@ private:
 
 public:
 	DBFile ();
+    ~DBFile ();
 
 	void Load (Schema &myschema, const char *loadpath);
 
