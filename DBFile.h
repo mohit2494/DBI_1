@@ -7,16 +7,15 @@
 #include "File.h"
 #include "Comparison.h"
 #include "ComparisonEngine.h"
+#include <string>
 
 typedef enum {heap, sorted, tree} fType;
-typedef enum {READ, WRITE} BufferMode;
+typedef enum {READ, WRITE,IDLE} BufferMode;
 
 // class to take care of meta data
 
 class Preference{
 private:
-	char * preferenceFilePath = "/tempfiles/";
-	const char * preferenceFileName = "preference.txt";
 public:
     // TODO: change access labels
 	// Buffer Mode - WRITE or READ
@@ -27,16 +26,8 @@ public:
 	bool lastPageFullOrNot;
 	// Position of current record in current page
 	int currentRecordPosition;
-
-	// 2 Member functions
-	// Load loads the preference variables
-	// from the persistent text file 
-	// in disk storage
-	void Load();
-
-	// Dump dumps the current preferences
-	// in a text file in tempfiles folder
-    void Dump();
+	// 
+	char * preferenceFilePath;
 
 	// relevant getters and setters
 	void setCurrentPage(off_t currentPage);
@@ -65,7 +56,9 @@ private:
 public:
 	DBFile ();
     ~DBFile ();
-
+	void LoadPreference(const char*f_path);
+	void DumpPreference();
+	int GetPageLocationToWrite();
 	void Load (Schema &myschema, const char *loadpath);
 
 	/**
