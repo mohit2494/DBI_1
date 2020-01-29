@@ -39,7 +39,7 @@ int DBFile::Create (const char *f_path, fType f_type, void *startup) {
     if (f_type == heap){
             char *fName = strdup(f_path);
             myFile.Open(0,fName);
-            myPreference.currentPage = 0;
+            myPreference.currentPage = myFile.GetLength();
             return 1;
     }
     return 0;
@@ -66,6 +66,7 @@ int DBFile::Open (const char *f_path) {
     char * fName = strdup(f_path);
     myFile.Open(1,fName);
     if(myFile.IsFileOpen()){
+        myPreference.currentPage = myFile.GetLength();
         return 1;
     }
     return 0;
@@ -118,8 +119,7 @@ void DBFile::Add (Record &rec) {
         // if page is full, then write page to disk
         this->myFile.Open(fileExists, this->myFilePath);
         this->myFile.AddPage(&this->myPage,currentPageCount);
-        currentPageCount++;
-        
+
         // empty page
         this->myPage.EmptyItOut();
 
