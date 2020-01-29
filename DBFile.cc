@@ -76,6 +76,48 @@ int GetPageLocationToWrite() {
     return !pageLocation ? 0 : pageLocation-1;
 }
 
+int GetPageLocationToRead() {
+    int pageLocation = myFile.GetLength();
+    return !pageLocation ? 0 : pageLocation-1;
+}
+
+
+/**
+    In order to add records to the file, 
+    the function Add is used. In the case of 
+    the unordered heap file that you are implementing 
+    in this assignment, this function simply adds the 
+    new record to the end of the file
+    Note that this function should actually consume addMe, 
+    so that after addMe has been put into the file, it cannot
+    be used again. There are then two functions that allow 
+    for record retrieval from a DBFile instance; all are 
+    called GetNext. 
+**/ 
+void DBFile::Add (Record &rec) {
+    
+    if (myPreference.pageBufferMode == READ && myPage.getNumRecs() > 0) {
+            myPage.EmptyItOut();
+    }
+    myPreference.pageBufferMode = WRITE;
+    
+    // add record to current page 
+    // check if the page is full
+    if(!this->myPage.Append(&rec)) {
+        
+        cout << "DBFile page full, writing to disk ...." << myFile.GetLength() << endl;
+    
+        // if page is full, then write page to disk
+        this->myFile.AddPage(&this->myPage,GetPageLocationToWrite());
+        
+        // empty page
+        this->myPage.EmptyItOut();
+
+        // add again to page
+        this->myPage.Append(&rec);
+    }
+}
+
 
 /**
  * the Load function bulk loads the DBFile instance from a text file,
@@ -86,15 +128,15 @@ int GetPageLocationToWrite() {
 void DBFile::Load (Schema &f_schema, const char *loadpath) {
     Record temp;
     if (myFile.IsFileOpen()){
+        if (myPreference.pageBufferMode == READ && myPage.getNumRecs() > 0) {
+            myPage.EmptyItOut();
+        }
+        myPreference.pageBufferMode = WRITE;
         FILE *tableFile = fopen (loadpath, "r"); 
         // while there are records, keep adding them to the DBFile
         while(temp.SuckNextRecord(&f_schema, tableFile)==1) {
             Add(temp);
         }
-    }
-    if (myPage.getNumRecs() > 0) {
-        this->myFile.AddPage(&this->myPage,myFile.GetLength());
-        myPage.EmptyItOut();
     }
 }
 
@@ -142,36 +184,7 @@ int DBFile::Close () {
     myPreference.Dump();
 }
 
-/**
-    In order to add records to the file, 
-    the function Add is used. In the case of 
-    the unordered heap file that you are implementing 
-    in this assignment, this function simply adds the 
-    new record to the end of the file
-    Note that this function should actually consume addMe, 
-    so that after addMe has been put into the file, it cannot
-    be used again. There are then two functions that allow 
-    for record retrieval from a DBFile instance; all are 
-    called GetNext. 
-**/ 
-void DBFile::Add (Record &rec) {
-    
-    // add record to current page 
-    // check if the page is full
-    if(!this->myPage.Append(&rec)) {
-        
-        cout << "DBFile page full, writing to disk ....";
-    
-        // if page is full, then write page to disk
-        this->myFile.AddPage(&this->myPage,++myPreference.currentPage);
-        
-        // empty page
-        this->myPage.EmptyItOut();
 
-        // add again to page
-        this->myPage.Append(&rec);
-    }
-}
 
 
 int DBFile::GetNext (Record &fetchme) {

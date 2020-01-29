@@ -59,6 +59,7 @@ public:
 	void LoadPreference(const char*f_path);
 	void DumpPreference();
 	int GetPageLocationToWrite();
+	int GetPageLocationToRead();
 	void Load (Schema &myschema, const char *loadpath);
 	
 	/**
