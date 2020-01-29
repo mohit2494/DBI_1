@@ -14,14 +14,39 @@ typedef enum {READ, WRITE} BufferMode;
 // class to take care of meta data
 
 class Preference{
+private:
+	char * preferenceFilePath = "/tempfiles/";
+	const char * preferenceFileName = "preference.txt";
 public:
-    // @TODO change access labels
-    BufferMode pageBufferMode;
-    off_t currentPage;
-	int currentRecord;
+    // TODO: change access labels
+	// Buffer Mode - WRITE or READ
+	BufferMode pageBufferMode;
+	// current page of transaction with the file
+	off_t currentPage;
+	// was the last page written full or not
 	bool lastPageFullOrNot;
-    void Loads();
-    void Dumps();
+	// Position of current record in current page
+	int currentRecordPosition;
+
+	// 2 Member functions
+	// Load loads the preference variables
+	// from the persistent text file 
+	// in disk storage
+	void Load();
+
+	// Dump dumps the current preferences
+	// in a text file in tempfiles folder
+    void Dump();
+
+	// relevant getters and setters
+	void setCurrentPage(off_t currentPage);
+	off_t getCurrentPage();
+	bool isLastPageFullOrNot();
+	void setLastPageFullOrNot(bool lastPageFullOrNot);
+	int getCurrentRecordPosition();
+	void setCurrentRecordPosition(int currentRecord);
+	BufferMode getPageBufferMode();
+	void setPageBufferMode(BufferMode pageBufferMode);
 };
 
 

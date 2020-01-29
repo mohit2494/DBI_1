@@ -10,15 +10,50 @@
 #include <iostream>
 #include <string.h>
 #include "Utilities.h"
+#include "fstream"
 
-
-void Preference :: Loads() {
+/*************** Preference Class Definitions ******************/
+void Preference :: Load() {
     
 }
 
-void Preference :: Dumps(){
+void Preference :: Dump(){
     
 }
+
+BufferMode Preference::getPageBufferMode() {
+    return this->pageBufferMode;
+}
+
+void Preference::setPageBufferMode(BufferMode pageBufferMode) {
+    this->pageBufferMode = pageBufferMode;
+}
+
+off_t Preference::getCurrentPage() {
+		return this->currentPage;
+}
+
+void Preference::setCurrentPage(off_t currentPage) {
+    this->currentPage = currentPage;
+}
+
+bool Preference::isLastPageFullOrNot() {
+    return this->lastPageFullOrNot;
+}
+
+void Preference::setLastPageFullOrNot(bool lastPageFullOrNot) {
+    this->lastPageFullOrNot = lastPageFullOrNot;
+}
+
+int Preference::getCurrentRecordPosition(){
+		return this->currentRecordPosition;
+}
+
+void Preference::setCurrentRecordPosition(int currentRecord) {
+		this->currentRecordPosition = currentRecord;
+}
+/**************** End of Preference Class ********************/
+
 
 
 // stub file .. replace it with your own DBFile.cc
