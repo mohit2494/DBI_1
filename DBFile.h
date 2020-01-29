@@ -11,7 +11,6 @@
 typedef enum {heap, sorted, tree} fType;
 typedef enum {READ, WRITE} BufferMode;
 
-
 // class to take care of meta data
 
 class Preference{
@@ -19,6 +18,8 @@ public:
     // @TODO change access labels
     BufferMode pageBufferMode;
     off_t currentPage;
+	int currentRecord;
+	bool lastPageFullOrNot;
     void Loads();
     void Dumps();
 };
@@ -32,6 +33,7 @@ private:
     Page myPage;
     Record myRecord;
     Preference myPreference;
+	ComparisonEngine myCompEng;
 	char* myFilePath;
 	off_t currentPageCount;
 

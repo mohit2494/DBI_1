@@ -23,12 +23,9 @@ void Preference :: Dumps(){
 
 // stub file .. replace it with your own DBFile.cc
 DBFile::DBFile () {
-    myPreference.Loads();
-
     // initializing page count
     // holds the number of pages
     // DBFile holds in physical memory
-    
 }
 
 DBFile::~DBFile () {
@@ -69,8 +66,17 @@ void DBFile::Load (Schema &f_schema, const char *loadpath) {
 int DBFile::Open (const char *f_path) {
     char * fName = strdup(f_path);
     myFile.Open(1,fName);
+    // myPreference.Loads(f_path);
     if(myFile.IsFileOpen()){
-        myPreference.currentPage = 0;
+        if( myPreference.pageBufferMode == READ ){
+            myFile.GetPage(&myPage,myPreference.currentPage);
+            for (int i = 0 ; i < myPreference.currentRecord; i++){
+                myPage.GetFirst(&myRecord);
+            }
+        }
+        else if(myPreference.lastPageFullOrNot){
+            myFile.GetPage(&myPage,myFile.GetLength()-1);
+        }
         return 1;
     }
     return 0;
@@ -78,10 +84,15 @@ int DBFile::Open (const char *f_path) {
 
 void DBFile::MoveFirst () {
     if (myFile.IsFileOpen()){
+        if(myPreference.pageBufferMode == WRITE && myPage.getNumRecs() > 0){
+            myFile.AddPage(&myPage,myFile.GetLength()-1);
+            myPage.EmptyItOut();
+        }
+        myPreference.pageBufferMode = READ;
         myFile.MoveToFirst();
         myPreference.currentPage = 0;
+        myPreference.currentRecord = 0;
     }
-   
 }
 
 /**
@@ -89,14 +100,11 @@ void DBFile::MoveFirst () {
     on success and a zero on failure.
 **/ 
 int DBFile::Close () {
-    myPreference.Dumps();
-    if(myPreference.pageBufferMode == WRITE){
-           myFile.AddPage(&myPage,myFile.GetLength()+1);
-            myPreference.currentPage = myFile.GetLength();
-            myPage.EmptyItOut();
-            return 0;
+    if(myPreference.pageBufferMode == WRITE && myPage.getNumRecs() > 0){
+            myFile.AddPage(&myPage,myFile.GetLength()-1);
     }
-    myFile.Close();
+    myPreference.currentPage =myFile.Close()-1;
+    myPreference.Dumps();
 }
 
 /**
@@ -133,42 +141,47 @@ void DBFile::Add (Record &rec) {
 
 int DBFile::GetNext (Record &fetchme) {
     if (myFile.IsFileOpen()){
-        if (myPreference.pageBufferMode == WRITE){
+        if (myPreference.pageBufferMode == WRITE and myPage.getNumRecs() > 0){
             myFile.AddPage(&myPage,myFile.GetLength());
-            myPreference.currentPage = myFile.GetLength();
             myPage.EmptyItOut();
+            myPreference.currentPage = myFile.GetLength();
             return 0;
         }
+        myPreference.pageBufferMode = READ;
         if (!myPage.GetFirst(&fetchme)) {
             if (myPreference.currentPage+1 >myFile.GetLength()){
                return 0;
             }
             else{
+                myPreference.currentPage++;
+                myPreference.currentRecord = 0;
                 myFile.GetPage(&myPage,myPreference.currentPage);
                 myPage.GetFirst(&fetchme);
             }
         }
-        myPreference.pageBufferMode = READ;
+        myPreference.currentRecord++;
         return 1;
     }
 
 }
 
 int DBFile::GetNext (Record &fetchme, CNF &cnf, Record &literal) {
-
-    if (myPreference.pageBufferMode == WRITE){
-        ComparisonEngine comp;
+    if (myPreference.pageBufferMode == WRITE and myPage.getNumRecs() > 0){
+            myFile.AddPage(&myPage,myFile.GetLength());
+            myPage.EmptyItOut();
+            myPreference.currentPage = myFile.GetLength();
+            return 0;
+        }
         bool readFlag ;
         bool compareFlag;
         do{
             readFlag = GetNext(fetchme);
-            compareFlag = comp.Compare (&fetchme, &literal, &cnf);
+            compareFlag = myCompEng.Compare (&fetchme, &literal, &cnf);
         }
         while(readFlag && !compareFlag);
         if(!readFlag){
             return 0;
         }
         return 1;
-    }
 
 }
