@@ -146,13 +146,13 @@ int DBFile::Open (const char *f_path) {
     // myPreference.Loads(f_path);
     if(myFile.IsFileOpen()){
         if( myPreference.pageBufferMode == READ ){
-            myFile.GetPage(&myPage,myPreference.currentPage);
+            myFile.GetPage(&myPage,GetPageLocationToRead());
             for (int i = 0 ; i < myPreference.currentRecordPosition; i++){
                 myPage.GetFirst(&myRecord);
             }
         }
         else if(myPreference.lastPageFullOrNot){
-            myFile.GetPage(&myPage,myFile.GetLength()-1);
+            myFile.GetPage(&myPage,GetPageLocationToRead());
         }
         return 1;
     }
@@ -162,7 +162,7 @@ int DBFile::Open (const char *f_path) {
 void DBFile::MoveFirst () {
     if (myFile.IsFileOpen()){
         if(myPreference.pageBufferMode == WRITE && myPage.getNumRecs() > 0){
-            myFile.AddPage(&myPage,myFile.GetLength()-1);
+            myFile.AddPage(&myPage,GetPageLocationToWrite());
             myPage.EmptyItOut();
         }
         myPreference.pageBufferMode = READ;
@@ -178,7 +178,7 @@ void DBFile::MoveFirst () {
 **/ 
 int DBFile::Close () {
     if(myPreference.pageBufferMode == WRITE && myPage.getNumRecs() > 0){
-            myFile.AddPage(&myPage,myFile.GetLength()-1);
+            myFile.AddPage(&myPage,GetPageLocationToWrite());
     }
     myPreference.currentPage =myFile.Close()-1;
     myPreference.Dump();
@@ -190,7 +190,7 @@ int DBFile::Close () {
 int DBFile::GetNext (Record &fetchme) {
     if (myFile.IsFileOpen()){
         if (myPreference.pageBufferMode == WRITE and myPage.getNumRecs() > 0){
-            myFile.AddPage(&myPage,myFile.GetLength());
+            myFile.AddPage(&myPage,GetPageLocationToWrite());
             myPage.EmptyItOut();
             myPreference.currentPage = myFile.GetLength();
             return 0;
@@ -203,7 +203,7 @@ int DBFile::GetNext (Record &fetchme) {
             else{
                 myPreference.currentPage++;
                 myPreference.currentRecordPosition = 0;
-                myFile.GetPage(&myPage,myPreference.currentPage);
+                myFile.GetPage(&myPage,GetPageLocationToRead());
                 myPage.GetFirst(&fetchme);
             }
         }
@@ -215,7 +215,7 @@ int DBFile::GetNext (Record &fetchme) {
 
 int DBFile::GetNext (Record &fetchme, CNF &cnf, Record &literal) {
     if (myPreference.pageBufferMode == WRITE and myPage.getNumRecs() > 0){
-            myFile.AddPage(&myPage,myFile.GetLength());
+            myFile.AddPage(&myPage,GetPageLocationToWrite());
             myPage.EmptyItOut();
             myPreference.currentPage = myFile.GetLength();
             return 0;
