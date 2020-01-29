@@ -34,7 +34,7 @@ reads and writes, in which case you may have to write this page to disk before i
 class Page {
 private:
 	TwoWayList <Record> *myRecs;
-	int numRecs;
+	int numRecs;	
 	int curSizeInBytes;
 
 public:
@@ -42,6 +42,9 @@ public:
 	Page ();
 	virtual ~Page ();
 
+	// getter and setter method for page
+	int getNumRecs();
+	
 	// this takes a page and writes its binary representation to bits
 	void ToBinary (char *bits);
 

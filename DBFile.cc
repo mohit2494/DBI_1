@@ -28,7 +28,7 @@ DBFile::DBFile () {
     // initializing page count
     // holds the number of pages
     // DBFile holds in physical memory
-    currentPageCount = -1;
+    
 }
 
 DBFile::~DBFile () {
@@ -60,13 +60,17 @@ void DBFile::Load (Schema &f_schema, const char *loadpath) {
             Add(temp);
         }
     }
+    if (myPage.getNumRecs() > 0) {
+        this->myFile.AddPage(&this->myPage,myFile.GetLength());
+        myPage.EmptyItOut();
+    }
 }
 
 int DBFile::Open (const char *f_path) {
     char * fName = strdup(f_path);
     myFile.Open(1,fName);
     if(myFile.IsFileOpen()){
-        myPreference.currentPage = myFile.GetLength();
+        myPreference.currentPage = 0;
         return 1;
     }
     return 0;
@@ -75,7 +79,7 @@ int DBFile::Open (const char *f_path) {
 void DBFile::MoveFirst () {
     if (myFile.IsFileOpen()){
         myFile.MoveToFirst();
-        myPreference.currentPage = 1;
+        myPreference.currentPage = 0;
     }
    
 }
@@ -92,6 +96,7 @@ int DBFile::Close () {
             myPage.EmptyItOut();
             return 0;
     }
+    myFile.Close();
 }
 
 /**
@@ -113,13 +118,10 @@ void DBFile::Add (Record &rec) {
     if(!this->myPage.Append(&rec)) {
         
         cout << "DBFile page full, writing to disk ....";
-        int fileExists = 1;
-        fileExists = Utilities::checkfileExist(this->myFilePath);
     
         // if page is full, then write page to disk
-        this->myFile.Open(fileExists, this->myFilePath);
-        this->myFile.AddPage(&this->myPage,currentPageCount);
-
+        this->myFile.AddPage(&this->myPage,++myPreference.currentPage);
+        
         // empty page
         this->myPage.EmptyItOut();
 
@@ -132,13 +134,13 @@ void DBFile::Add (Record &rec) {
 int DBFile::GetNext (Record &fetchme) {
     if (myFile.IsFileOpen()){
         if (myPreference.pageBufferMode == WRITE){
-            myFile.AddPage(&myPage,myFile.GetLength()+1);
+            myFile.AddPage(&myPage,myFile.GetLength());
             myPreference.currentPage = myFile.GetLength();
             myPage.EmptyItOut();
             return 0;
         }
         if (!myPage.GetFirst(&fetchme)) {
-            if (++myPreference.currentPage >myFile.GetLength()){
+            if (myPreference.currentPage+1 >myFile.GetLength()){
                return 0;
             }
             else{
