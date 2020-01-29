@@ -143,9 +143,9 @@ void DBFile::Load (Schema &f_schema, const char *loadpath) {
 int DBFile::Open (const char *f_path) {
     char * fName = strdup(f_path);
     myFile.Open(1,fName);
-    // myPreference.Loads(f_path);
+    LoadPreference();
     if(myFile.IsFileOpen()){
-        if( myPreference.pageBufferMode == READ ){
+        if( myPreference.pageBufferMode == READ && myPage.getNumRecs() > 0){
             myFile.GetPage(&myPage,GetPageLocationToRead());
             for (int i = 0 ; i < myPreference.currentRecordPosition; i++){
                 myPage.GetFirst(&myRecord);
@@ -179,12 +179,11 @@ void DBFile::MoveFirst () {
 int DBFile::Close () {
     if(myPreference.pageBufferMode == WRITE && myPage.getNumRecs() > 0){
             myFile.AddPage(&myPage,GetPageLocationToWrite());
+            myPreference.currentPage = myFile.Close();
     }
-    myPreference.currentPage =myFile.Close()-1;
-    myPreference.Dump();
+    myPreference.currentRecordPosition = myPage.getNumRecs();
+    DumpPreference();
 }
-
-
 
 
 int DBFile::GetNext (Record &fetchme) {
