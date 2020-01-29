@@ -71,14 +71,13 @@ int DBFile::Create (const char *f_path, fType f_type, void *startup) {
     return 0;
 }
 
-int GetPageLocationToWrite() {
+int DBFile::GetPageLocationToWrite() {
     int pageLocation = myFile.GetLength();
     return !pageLocation ? 0 : pageLocation-1;
 }
 
-int GetPageLocationToRead() {
-    int pageLocation = myFile.GetLength();
-    return !pageLocation ? 0 : pageLocation-1;
+int DBFile::GetPageLocationToRead() {
+    return myPreference.currentPage -2;
 }
 
 
@@ -143,7 +142,7 @@ void DBFile::Load (Schema &f_schema, const char *loadpath) {
 int DBFile::Open (const char *f_path) {
     char * fName = strdup(f_path);
     myFile.Open(1,fName);
-    LoadPreference();
+    LoadPreference(f_path);
     if(myFile.IsFileOpen()){
         if( myPreference.pageBufferMode == READ && myPage.getNumRecs() > 0){
             myFile.GetPage(&myPage,GetPageLocationToRead());
@@ -192,11 +191,12 @@ int DBFile::GetNext (Record &fetchme) {
             myFile.AddPage(&myPage,GetPageLocationToWrite());
             myPage.EmptyItOut();
             myPreference.currentPage = myFile.GetLength();
+            myPreference.currentRecordPosition = myPage.getNumRecs();
             return 0;
         }
         myPreference.pageBufferMode = READ;
         if (!myPage.GetFirst(&fetchme)) {
-            if (myPreference.currentPage+1 >myFile.GetLength()){
+            if (myPreference.currentPage >= myFile.GetLength()){
                return 0;
             }
             else{
@@ -209,7 +209,6 @@ int DBFile::GetNext (Record &fetchme) {
         myPreference.currentRecordPosition++;
         return 1;
     }
-
 }
 
 int DBFile::GetNext (Record &fetchme, CNF &cnf, Record &literal) {
@@ -217,6 +216,7 @@ int DBFile::GetNext (Record &fetchme, CNF &cnf, Record &literal) {
             myFile.AddPage(&myPage,GetPageLocationToWrite());
             myPage.EmptyItOut();
             myPreference.currentPage = myFile.GetLength();
+            myPreference.currentRecordPosition = myPage.getNumRecs();
             return 0;
         }
         bool readFlag ;
