@@ -18,6 +18,7 @@ void Preference :: Load() {
 }
 
 void Preference :: Dump(){
+    ofstream myfile;
     
 }
 
@@ -105,7 +106,7 @@ int DBFile::Open (const char *f_path) {
     if(myFile.IsFileOpen()){
         if( myPreference.pageBufferMode == READ ){
             myFile.GetPage(&myPage,myPreference.currentPage);
-            for (int i = 0 ; i < myPreference.currentRecord; i++){
+            for (int i = 0 ; i < myPreference.currentRecordPosition; i++){
                 myPage.GetFirst(&myRecord);
             }
         }
@@ -126,7 +127,7 @@ void DBFile::MoveFirst () {
         myPreference.pageBufferMode = READ;
         myFile.MoveToFirst();
         myPreference.currentPage = 0;
-        myPreference.currentRecord = 0;
+        myPreference.currentRecordPosition = 0;
     }
 }
 
@@ -139,7 +140,7 @@ int DBFile::Close () {
             myFile.AddPage(&myPage,myFile.GetLength()-1);
     }
     myPreference.currentPage =myFile.Close()-1;
-    myPreference.Dumps();
+    myPreference.Dump();
 }
 
 /**
@@ -189,12 +190,12 @@ int DBFile::GetNext (Record &fetchme) {
             }
             else{
                 myPreference.currentPage++;
-                myPreference.currentRecord = 0;
+                myPreference.currentRecordPosition = 0;
                 myFile.GetPage(&myPage,myPreference.currentPage);
                 myPage.GetFirst(&fetchme);
             }
         }
-        myPreference.currentRecord++;
+        myPreference.currentRecordPosition++;
         return 1;
     }
 
