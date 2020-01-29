@@ -13,14 +13,7 @@
 #include "fstream"
 
 /*************** Preference Class Definitions ******************/
-void Preference :: Load() {
-    
-}
 
-void Preference :: Dump(){
-    ofstream myfile;
-    
-}
 
 BufferMode Preference::getPageBufferMode() {
     return this->pageBufferMode;
@@ -220,4 +213,36 @@ int DBFile::GetNext (Record &fetchme, CNF &cnf, Record &literal) {
         }
         return 1;
 
+}
+
+void DBFile::LoadPreference(const char* filePath) {
+    char* newFilePath = strcat(strdup(filePath), ".pref");
+    ifstream file;
+    if (Utilities::checkfileExist(newFilePath)) {
+        file.open(newFilePath,ios::in);
+        if(!file){
+            cerr<<"Error in opening file..";
+            exit(1);
+        }
+        file.read((char*)&myPreference,sizeof(Preference));
+    }
+    else {
+        myPreference.preferenceFilePath = newFilePath;
+        myPreference.currentPage = 0;
+        myPreference.currentRecordPosition = 0;
+        myPreference.lastPageFullOrNot = false;
+        myPreference.pageBufferMode = IDLE;
+    }
+}
+
+void DBFile::DumpPreference(){
+    ofstream file;
+    file.open("aaa.txt",ios::out);
+    if(!file)
+    {
+      cout<<"Error in creating file.."<<endl;
+      return 0;
+    }
+    file.write((char*)&myPreference,sizeof(Preference));   
+    file.close();
 }
