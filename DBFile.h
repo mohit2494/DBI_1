@@ -9,10 +9,13 @@
 #include "ComparisonEngine.h"
 
 typedef enum {heap, sorted, tree} fType;
+typedef enum {READ, WRITE} BufferMode;
+
 
 // class to take care of meta data
 
 class Preference{
+    BufferMode pageBufferMode;
 public:
     void Loads();
     void Dumps();

@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <string.h>
+#include "Utilities.h"
 
 void Preference :: Loads() {
     
@@ -21,8 +22,6 @@ void Preference :: Dumps(){
 bool Preference :: FindFilePath(const char *f_path){
     return true;
 }
-#include "iostream"
-#include "Utilities.h"
 
 // stub file .. replace it with your own DBFile.cc
 DBFile::DBFile () {
@@ -57,11 +56,12 @@ int DBFile::Create (const char *f_path, fType f_type, void *startup) {
 **/
 void DBFile::Load (Schema &f_schema, const char *loadpath) {
     Record temp;
+ // @todo use bool isOpen();
     FILE *tableFile = fopen(loadpath,"r");
     
     // while there are records, keep adding them to the DBFile
     while(temp.SuckNextRecord(&f_schema, tableFile)==1) {
-        this->Add(temp);
+        Add(temp);
     }
 }
 
@@ -70,6 +70,7 @@ int DBFile::Open (const char *f_path) {
         cerr << "Cannot Open DBFile before creating it.\n";
         exit(1);
     }
+    char * fName = strdup(f_path);
     myFile.Open(1,f_path);
     if(myFile.IsFileOpen()){
         return 1;
@@ -80,6 +81,7 @@ int DBFile::Open (const char *f_path) {
 
 void DBFile::MoveFirst () {
     myFile.MoveToFirst();
+    myPreference.currentPage = 1;
 }
 
 /**
@@ -88,7 +90,6 @@ void DBFile::MoveFirst () {
 **/ 
 int DBFile::Close () {
     myPreference.Dumps();
-    
 }
 
 /**
@@ -128,9 +129,41 @@ void DBFile::Add (Record &rec) {
 
 
 int DBFile::GetNext (Record &fetchme) {
+    if (myFile.IsFileOpen()){
+        if (myPreference.pageBufferMode == WRITE){
+            myFile.AddPage(&myPage,myFile.GetLength()+1);
+            myPreference.currentPage = myFile.GetLength();
+            myPage.EmptyItOut();
+            return 0;
+        }
+        if (!myPage.GetFirst(&fetchme)) {
+            if (++myPreference.currentPage >myFile.GetLength()){
+               return 0;
+            }
+            else{
+                myFile.GetPage(&myPage,myPreference.currentPage);
+                myPage.GetFirst(&fetchme);
+            }
+        }
+        myPreference.pageBufferMode = READ;
+        return 1;
+    }
 
 }
 
 int DBFile::GetNext (Record &fetchme, CNF &cnf, Record &literal) {
-    
+
+    if (myPreference.pageBufferMode == WRITE){
+        ComparisonEngine comp;
+        do{
+            bool readFlag = GetNext(&fetchme);
+            bool compareFlag = comp.Compare (&fetchme, &literal, &cnf)
+        }
+        while(readFlag && !compareFlag);
+        if(!readFlag){
+            return 0;
+        }
+        return 1;
+    }
+
 }
