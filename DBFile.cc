@@ -11,6 +11,7 @@
 #include <string.h>
 #include "Utilities.h"
 
+
 void Preference :: Loads() {
     
 }
@@ -19,9 +20,6 @@ void Preference :: Dumps(){
     
 }
 
-bool Preference :: FindFilePath(const char *f_path){
-    return true;
-}
 
 // stub file .. replace it with your own DBFile.cc
 DBFile::DBFile () {
@@ -39,11 +37,10 @@ DBFile::~DBFile () {
 
 int DBFile::Create (const char *f_path, fType f_type, void *startup) {
     if (f_type == heap){
-        if (!myPreference.FindFilePath(f_path)){
             char *fName = strdup(f_path);
             myFile.Open(0,fName);
+            myPreference.currentPage = 0;
             return 1;
-        }
     }
     return 0;
 }
@@ -56,32 +53,30 @@ int DBFile::Create (const char *f_path, fType f_type, void *startup) {
 **/
 void DBFile::Load (Schema &f_schema, const char *loadpath) {
     Record temp;
- // @todo use bool isOpen();
-    FILE *tableFile = fopen(loadpath,"r");
-    
-    // while there are records, keep adding them to the DBFile
-    while(temp.SuckNextRecord(&f_schema, tableFile)==1) {
-        Add(temp);
+    if (myFile.IsFileOpen()){
+        FILE *tableFile = fopen (loadpath, "r"); 
+        // while there are records, keep adding them to the DBFile
+        while(temp.SuckNextRecord(&f_schema, tableFile)==1) {
+            Add(temp);
+        }
     }
 }
 
 int DBFile::Open (const char *f_path) {
-    if (!myPreference.FindFilePath(f_path)){
-        cerr << "Cannot Open DBFile before creating it.\n";
-        exit(1);
-    }
     char * fName = strdup(f_path);
     myFile.Open(1,fName);
     if(myFile.IsFileOpen()){
         return 1;
     }
     return 0;
-    
 }
 
 void DBFile::MoveFirst () {
-    myFile.MoveToFirst();
-    myPreference.currentPage = 1;
+    if (myFile.IsFileOpen()){
+        myFile.MoveToFirst();
+        myPreference.currentPage = 1;
+    }
+   
 }
 
 /**
@@ -90,6 +85,12 @@ void DBFile::MoveFirst () {
 **/ 
 int DBFile::Close () {
     myPreference.Dumps();
+    if(myPreference.pageBufferMode == WRITE){
+           myFile.AddPage(&myPage,myFile.GetLength()+1);
+            myPreference.currentPage = myFile.GetLength();
+            myPage.EmptyItOut();
+            return 0;
+    }
 }
 
 /**

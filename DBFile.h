@@ -21,7 +21,6 @@ public:
     off_t currentPage;
     void Loads();
     void Dumps();
-    bool FindFilePath (const char *f_path);
 };
 
 
