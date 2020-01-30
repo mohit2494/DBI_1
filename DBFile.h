@@ -61,7 +61,7 @@ public:
 	void LoadPreference(const char*f_path);
 	void DumpPreference();
 	int GetPageLocationToWrite();
-	int GetPageLocationToRead();
+	int GetPageLocationToRead(BufferMode mode);
 	int GetPageLocationToReWrite();
 	void Load (Schema &myschema, const char *loadpath);
 	

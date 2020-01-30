@@ -76,8 +76,13 @@ int DBFile::GetPageLocationToWrite() {
     return !pageLocation ? 0 : pageLocation-1;
 }
 
-int DBFile::GetPageLocationToRead() {
-    return myPreference.currentPage -2;
+int DBFile::GetPageLocationToRead(BufferMode mode) {
+    if (mode == WRITE){
+        return myPreference.currentPage-2;
+    }
+    else if (mode == READ){
+        return myPreference.currentPage;
+    }
 }
 
 int DBFile::GetPageLocationToReWrite(){
@@ -152,13 +157,13 @@ int DBFile::Open (const char *f_path) {
     LoadPreference(f_path);
     if(myFile.IsFileOpen()){
         if( myPreference.pageBufferMode == READ && myPage.getNumRecs() > 0){
-            myFile.GetPage(&myPage,GetPageLocationToRead());
+            myFile.GetPage(&myPage,GetPageLocationToRead(myPreference.pageBufferMode));
             for (int i = 0 ; i < myPreference.currentRecordPosition; i++){
                 myPage.GetFirst(&myRecord);
             }
         }
         else if(!myPreference.isPageFull){
-            myFile.GetPage(&myPage,GetPageLocationToRead());
+            myFile.GetPage(&myPage,GetPageLocationToRead(myPreference.pageBufferMode));
         }
         return 1;
     }
@@ -186,7 +191,9 @@ void DBFile::MoveFirst () {
 **/ 
 int DBFile::Close () {
     if(myPreference.pageBufferMode == WRITE && myPage.getNumRecs() > 0){
-            myFile.AddPage(&myPage,GetPageLocationToWrite());
+            if(!myPreference.allRecordsWritten){
+                myFile.AddPage(&myPage,GetPageLocationToWrite());
+            }
             myPreference.isPageFull = false;
             myPreference.currentPage = myFile.Close();
             myPreference.allRecordsWritten = true;
@@ -209,14 +216,14 @@ int DBFile::GetNext (Record &fetchme) {
         }
         myPreference.pageBufferMode = READ;
         if (!myPage.GetFirst(&fetchme)) {
-            if (myPreference.currentPage >= myFile.GetLength()){
+            if (myPreference.currentPage+1 >= myFile.GetLength()){
                return 0;
             }
             else{
+                myFile.GetPage(&myPage,GetPageLocationToRead(myPreference.pageBufferMode));
+                myPage.GetFirst(&fetchme);
                 myPreference.currentPage++;
                 myPreference.currentRecordPosition = 0;
-                myFile.GetPage(&myPage,GetPageLocationToRead());
-                myPage.GetFirst(&fetchme);
             }
         }
         myPreference.currentRecordPosition++;
