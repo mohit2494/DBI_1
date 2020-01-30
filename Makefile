@@ -1,20 +1,16 @@
-CC = g++ -O2 -Wno-deprecated
+CC = g++ -O2 -Wno-deprecated 
 
 tag = -i
-test_out_tag = -ll
-
 
 ifdef linux
 tag = -n
 endif
 
-all:test.out
-
 test.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o test.o
-	$(CC) -o test.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o test.o -ll
+	$(CC) -o test.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o test.o -lfl
 	
-main: Record.o Comparison.o ComparisonEngine.o Schema.o File.o y.tab.o lex.yy.o main.o
-	$(CC) -g -o main Record.o Comparison.o ComparisonEngine.o Schema.o File.o y.tab.o lex.yy.o main.o -ll
+main: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o	y.tab.o lex.yy.o main.o
+	$(CC) -o main Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o	y.tab.o lex.yy.o main.o -lfl
 	
 test.o: test.cc
 	$(CC) -g -c test.cc
@@ -42,14 +38,14 @@ Schema.o: Schema.cc
 	
 y.tab.o: Parser.y
 	yacc -d Parser.y
-	gsed $(tag) y.tab.c -e "s/  __attribute__ ((__unused__))$$/# ifndef __cplusplus\n  __attribute__ ((__unused__));\n# endif/"
+	sed $(tag) y.tab.c -e "s/  __attribute__ ((__unused__))$$/# ifndef __cplusplus\n  __attribute__ ((__unused__));\n# endif/" 
 	g++ -c y.tab.c
 
 lex.yy.o: Lexer.l
 	lex  Lexer.l
 	gcc  -c lex.yy.c
 
-clean:
+clean: 
 	rm -f *.o
 	rm -f *.out
 	rm -f y.tab.c
