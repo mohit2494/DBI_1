@@ -227,6 +227,8 @@ int DBFile::GetNext (Record &fetchme) {
             }
         }
         myPreference.currentRecordPosition++;
+        // Schema nation ("catalog", "nation");
+        // fetchme.Print(&nation);
         return 1;
     }
 }
@@ -256,15 +258,31 @@ int DBFile::GetNext (Record &fetchme, CNF &cnf, Record &literal) {
 }
 
 void DBFile::LoadPreference(const char* filePath) {
-    char* newFilePath = strcat(strdup(filePath), ".pref");
+    string filename(filePath);
+    string newFilePath = filename.substr(0,filename.find_last_of('.'))+".pref";
+
     ifstream file;
     if (Utilities::checkfileExist(newFilePath)) {
+        
+        cout << endl;
+        cout << "----------------------------------------------" << endl;
+        cout << "opening preference file located at :" << endl;
+        cout << newFilePath << endl;
+        cout << "----------------------------------------------" << endl;
+
         file.open(newFilePath,ios::in);
         if(!file){
             cerr<<"Error in opening file..";
             exit(1);
         }
         file.read((char*)&myPreference,sizeof(Preference));
+
+        cout << endl;
+        cout << "----------------------------------------------" << endl;
+        cout << "Preference values after read :" << endl;
+        cout << myPreference.preferenceFilePath << endl;
+        cout << "----------------------------------------------" << endl;
+
     }
     else {
         myPreference.preferenceFilePath = newFilePath;
@@ -283,6 +301,18 @@ void DBFile::DumpPreference(){
       cerr<<"Error in opening file for writing.."<<endl;
       exit(1);
     }
+    cout << endl;
+    cout << "----------------------------------------------" << endl;
+    cout << "Preference values before writing :" << endl;
+    cout << myPreference.preferenceFilePath << endl;
+    cout << "----------------------------------------------" << endl;
     file.write((char*)&myPreference,sizeof(Preference));
     file.close();
+
+
+    // string filename(myPreference.preferenceFilePath);
+    // string newFilePath = filename.substr(0,filename.find_last_of('.'))+".bin";
+    // const char* somePath = newFilePath.c_str();
+    // LoadPreference(somePath);
+
 }

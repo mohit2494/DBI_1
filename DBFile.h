@@ -27,7 +27,7 @@ public:
 	// Position of current record in current page
 	int currentRecordPosition;
 	// 
-	char * preferenceFilePath;
+	string preferenceFilePath;
 
 	bool allRecordsWritten;
 
