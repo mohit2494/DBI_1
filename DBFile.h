@@ -27,9 +27,11 @@ public:
 	// Position of current record in current page
 	int currentRecordPosition;
 	// 
-	string preferenceFilePath;
+	char * preferenceFilePath;
 
 	bool allRecordsWritten;
+	bool reWriteFlag;
+
 
 	// relevant getters and setters
 	// void setCurrentPage(off_t currentPage);
@@ -58,7 +60,7 @@ private:
 public:
 	DBFile ();
     ~DBFile ();
-	void LoadPreference(const char*f_path);
+	void LoadPreference(char*f_path);
 	void DumpPreference();
 	int GetPageLocationToWrite();
 	int GetPageLocationToRead(BufferMode mode);

@@ -1,109 +1,153 @@
-
 #include <iostream>
-#include "Record.h"
-#include <stdlib.h>
+#include "DBFile.h"
+#include "test.h"
+#include "string.h"
+
+// make sure that the file path/dir information below is correct
+const char *dbfile_dir = "/home/mk/Documents/uf docs/sem 2/Database Implementation/DBI/dbfiles/"; // dir where binary heap files should be stored
+const char *tpch_dir ="/home/mk/Documents/uf docs/sem 2/Database Implementation/git/tpch-dbgen/"; // dir where dbgen tpch files (extension *.tbl) can be found
+const char *catalog_path = "catalog"; // full path of the catalog file
+
 using namespace std;
 
-extern "C" {
-	int yyparse(void);   // defined in y.tab.c
+relation *rel;
+
+// load from a tpch file
+void test1 () {
+
+	DBFile dbfile;
+	cout << " DBFile will be created at " << rel->path () << endl;
+	dbfile.Create (rel->path(), heap, NULL);
+
+	char tbl_path[100]; // construct path of the tpch flat text file
+	sprintf (tbl_path, "%s%s.tbl", tpch_dir, rel->name()); 
+	cout << " tpch file will be loaded from " << tbl_path << endl;
+	const char *tabl_path_dup = strdup(tbl_path);
+
+	dbfile.Load (*(rel->schema ()), tabl_path_dup);
+	dbfile.Close ();
 }
 
-extern struct AndList *final;
+// sequential scan of a DBfile 
+void test2 () {
+
+	DBFile dbfile;
+	dbfile.Open (rel->path());
+	dbfile.MoveFirst ();
+
+	Record temp;
+
+	int counter = 0;
+	while (dbfile.GetNext(temp) == 1) {
+		counter += 1;
+		temp.Print (rel->schema());
+		if (counter == 15) {
+			break;
+		}
+	}
+	cout << " scanned " << counter << " recs \n";
+	dbfile.Close ();
+
+	dbfile.Open (rel->path());
+	 counter = 0;
+	while (dbfile.GetNext(temp) == 1) {
+		counter += 1;
+		temp.Print (rel->schema());
+	}
+	cout << " scanned " << counter << " recs \n";
+	dbfile.Close();
+
+	dbfile.Open (rel->path());
+	char tbl_path[100]; // construct path of the tpch flat text file
+	sprintf (tbl_path, "%s%s.tbl", tpch_dir, rel->name()); 
+	cout << " tpch file will be loaded from " << tbl_path << endl;
+	const char *tabl_path_dup = strdup(tbl_path);
+
+	dbfile.Load (*(rel->schema ()), tabl_path_dup);
+	dbfile.Close ();
+}
+
+// void test2 () {
+
+// 	DBFile dbfile;
+// 	dbfile.Open (rel->path());
+// 	dbfile.MoveFirst ();
+
+// 	Record temp;
+
+// 	int counter = 0;
+// 	while (dbfile.GetNext(temp) == 1) {
+// 		counter += 1;
+// 		temp.Print (rel->schema());
+// 		if (counter % 10000 == 0) {
+// 			cout << counter << "\n";
+// 		}
+// 	}
+// 	cout << " scanned " << counter << " recs \n";
+// 	dbfile.Close ();
+// }
+
+// scan of a DBfile and apply a filter predicate
+void test3 () {
+
+	cout << " Filter with CNF for : " << rel->name() << "\n";
+
+	CNF cnf; 
+	Record literal;
+	rel->get_cnf (cnf, literal);
+
+	DBFile dbfile;
+	dbfile.Open (rel->path());
+	dbfile.MoveFirst ();
+
+	Record temp;
+
+	int counter = 0;
+	while (dbfile.GetNext (temp, cnf, literal) == 1) {
+		counter += 1;
+		temp.Print (rel->schema());
+		if (counter % 10000 == 0) {
+			cout << counter << "\n";
+		}
+	}
+	cout << " selected " << counter << " recs \n";
+	dbfile.Close ();
+}
 
 int main () {
 
-	// try to parse the CNF
-	cout << "Enter in your CNF: ";
-	if (yyparse() != 0) {
-		cout << "Can't parse your CNF.\n";
-		exit (1);
+	setup (catalog_path, dbfile_dir, tpch_dir);
+
+	void (*test) ();
+	relation *rel_ptr[] = {n, r, c, p, ps, o, li};
+	void (*test_ptr[]) () = {&test1, &test2, &test3};  
+
+	int tindx = 0;
+	while (tindx < 1 || tindx > 3) {
+		cout << " select test: \n";
+		cout << " \t 1. load file \n";
+		cout << " \t 2. scan \n";
+		cout << " \t 3. scan & filter \n \t ";
+		cin >> tindx;
 	}
 
-	// create DBFile Object
-
-	// DBFile.load
-
-	// 
-
-
-
-
-
-
-	// suck up the schema from the file
-	Schema lineitem ("catalog", "lineitem");
-
-	// grow the CNF expression from the parse tree
-	CNF myComparison;
-	Record literal;
-	myComparison.GrowFromParseTree (final, &lineitem, literal);
-
-	// print out the comparison to the screen
-	myComparison.Print ();
-
-	// now open up the text file and start procesing it
-	FILE *tableFile = fopen ("/home/mk/Documents/uf docs/sem 2/Database Implementation/git/tpch-dbgen/lineitem.tbl", "r");
-
-	Record temp;
-	Schema mySchema ("catalog", "lineitem");
-
-	//char *bits = literal.GetBits ();
-	//cout << " numbytes in rec " << ((int *) bits)[0] << endl;
-	//literal.Print (&supplier);
-
-	// *** Step 1 of assignment ***
-
-	// After you have compiled and tried out main.cc, I would advise you to play with main.cc
-	// a bit before you really get started on this assignment, to familiarize yourself with the
- 	// code base that you will start from. Try to alter main.cc so that it loads a page up full
-	// of records, and then writes that page to disk. Then try to retrieve the page from disk and
-	// print the records to the screen. Once you feel fairly comfortable with the code base and 
-	// how to use it, then you are ready to implement assignment one. 
-
-	// Step 1. Load a page up full of records
-	Page writePage;
-
-	bool pageFull = false;
-	// Step 2. Check while appending whether the page is full or not
-	while(temp.SuckNextRecord(&mySchema, tableFile)==1 && (!pageFull)) {
-		
-		// Step 2. Check while appending whether the page is full or not
-		if(!writePage.Append(&temp))
-			pageFull = true;
+	int findx = 0;
+	while (findx < 1 || findx > 7) {
+		cout << "\n select table: \n";
+		cout << "\t 1. nation \n";
+		cout << "\t 2. region \n";
+		cout << "\t 3. customer \n";
+		cout << "\t 4. part \n";
+		cout << "\t 5. partsupp \n";
+		cout << "\t 6. orders \n";
+		cout << "\t 7. lineitem \n \t ";
+		cin >> findx;
 	}
-	string isPageFull = pageFull ? "Yes" : "No";
-	cout << "Page Full : " << isPageFull << endl;
 
-	// using this file for 
-	File tempFile;
-	tempFile.Open(0, "tempFileName.txt");
+	rel = rel_ptr [findx - 1];
+	test = test_ptr [tindx - 1];
 
-	off_t whichPage = 0;
+	test ();
 
-	// Step 3. Write the page to disk
-	tempFile.AddPage(&writePage,whichPage);
-
-	whichPage = 0;
-	Page readPage;
-
-	// Step 4. Retrieve page from disk
-	tempFile.GetPage(&readPage, whichPage);
-
-
-	/*** step 1 of assignment complete ***/
-
-
-	// read in all of the records from the text file and see if they match
-	// the CNF expression that was typed in
-	int counter = 0;
-	ComparisonEngine comp;
-	while (temp.SuckNextRecord (&mySchema, tableFile) == 1) {
-		counter++;
-		if (counter % 10000 == 0) {
-			cerr << counter << "\n";
-		}
-
-		if (comp.Compare (&temp, &literal, &myComparison))
-					temp.Print (&mySchema);
-	}
+	cleanup ();
 }

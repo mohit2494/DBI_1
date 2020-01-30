@@ -63,10 +63,9 @@ DBFile::~DBFile () {
 
 int DBFile::Create (const char *f_path, fType f_type, void *startup) {
     if (f_type == heap){
-            string s(f_path);
-            LoadPreference(s);
-            char *fName = strdup(f_path);
-            myFile.Open(0,fName);
+            char * fName = "/home/mk/Documents/uf docs/sem 2/Database Implementation/DBI/dbfiles/nation.pref";
+            myFile.Open(0,(char *)f_path);
+            LoadPreference(fName);            
             return 1;
     }
     return 0;
@@ -103,12 +102,22 @@ int DBFile::GetPageLocationToReWrite(){
     so that after addMe has been put into the file, it cannot
     be used again. There are then two functions that allow 
     for record retrieval from a DBFile instance; all are 
-    called GetNext. 
+    called             myPage.EmptyItOut();
+            myPage.EmptyItOut();
+Next. 
 **/ 
 void DBFile::Add (Record &rec) {
     
-    if (myPreference.pageBufferMode == READ && myPage.getNumRecs() > 0) {
-            myPage.EmptyItOut();
+     if (myPreference.pageBufferMode == READ ) {
+            if( myPage.getNumRecs() > 0){
+                myPage.EmptyItOut();
+            }
+            myFile.GetPage(&myPage,GetPageLocationToReWrite());
+            myPreference.currentPage = GetPageLocationToReWrite();
+            myPreference.currentRecordPosition = myPage.getNumRecs();
+            myPreference.reWriteFlag = true;
+
+            // open page for write
     }
     myPreference.pageBufferMode = WRITE;
     
@@ -119,7 +128,13 @@ void DBFile::Add (Record &rec) {
         cout << "DBFile page full, writing to disk ...." << myFile.GetLength() << endl;
     
         // if page is full, then write page to disk
-        this->myFile.AddPage(&this->myPage,GetPageLocationToWrite());
+        if (myPreference.reWriteFlag){
+            this->myFile.AddPage(&this->myPage,GetPageLocationToReWrite());
+            myPreference.reWriteFlag = false;
+        }
+        else{
+            this->myFile.AddPage(&this->myPage,GetPageLocationToWrite());
+        }
         
         // empty page
         this->myPage.EmptyItOut();
@@ -140,8 +155,16 @@ void DBFile::Add (Record &rec) {
 void DBFile::Load (Schema &f_schema, const char *loadpath) {
     Record temp;
     if (myFile.IsFileOpen()){
-        if (myPreference.pageBufferMode == READ && myPage.getNumRecs() > 0) {
-            myPage.EmptyItOut();
+        if (myPreference.pageBufferMode == READ ) {
+            if( myPage.getNumRecs() > 0){
+                myPage.EmptyItOut();
+            }
+            myFile.GetPage(&myPage,GetPageLocationToReWrite());
+            myPreference.currentPage = GetPageLocationToReWrite();
+            myPreference.currentRecordPosition = myPage.getNumRecs();
+            myPreference.reWriteFlag = true;
+
+            // open page for write
         }
         myPreference.pageBufferMode = WRITE;
         FILE *tableFile = fopen (loadpath, "r"); 
@@ -153,15 +176,16 @@ void DBFile::Load (Schema &f_schema, const char *loadpath) {
 }
 
 int DBFile::Open (const char *f_path) {
-    char * fName = strdup(f_path);
-    myFile.Open(1,fName);
-    LoadPreference(f_path);
+    char* fName = "/home/mk/Documents/uf docs/sem 2/Database Implementation/DBI/dbfiles/nation.pref";
+    myFile.Open(1,(char *)f_path);
+    LoadPreference(fName);
     if(myFile.IsFileOpen()){
-        if( myPreference.pageBufferMode == READ && myPage.getNumRecs() > 0){
+        if( myPreference.pageBufferMode == READ){
             myFile.GetPage(&myPage,GetPageLocationToRead(myPreference.pageBufferMode));
             for (int i = 0 ; i < myPreference.currentRecordPosition; i++){
                 myPage.GetFirst(&myRecord);
             }
+            myPreference.currentPage++;
         }
         else if(!myPreference.isPageFull){
             myFile.GetPage(&myPage,GetPageLocationToRead(myPreference.pageBufferMode));
@@ -177,8 +201,8 @@ void DBFile::MoveFirst () {
             if(!myPreference.allRecordsWritten){
                 myFile.AddPage(&myPage,GetPageLocationToReWrite());
             }
-            myPage.EmptyItOut();
         }
+        myPage.EmptyItOut();
         myPreference.pageBufferMode = READ;
         myFile.MoveToFirst();
         myPreference.currentPage = 0;
@@ -193,13 +217,22 @@ void DBFile::MoveFirst () {
 int DBFile::Close () {
     if(myPreference.pageBufferMode == WRITE && myPage.getNumRecs() > 0){
             if(!myPreference.allRecordsWritten){
-                myFile.AddPage(&myPage,GetPageLocationToWrite());
+                if (myPreference.reWriteFlag){
+                    myFile.AddPage(&this->myPage,GetPageLocationToReWrite());
+                    myPreference.reWriteFlag = false;
+                }
+                else{
+                    myFile.AddPage(&this->myPage,GetPageLocationToWrite());
+                }
             }
             myPreference.isPageFull = false;
             myPreference.currentPage = myFile.Close();
             myPreference.allRecordsWritten = true;
+            myPreference.currentRecordPosition = myPage.getNumRecs();
     }
-    myPreference.currentRecordPosition = myPage.getNumRecs();
+    else if(myPreference.pageBufferMode == READ){
+            myPreference.currentPage--;
+    }
     DumpPreference();
 }
 
@@ -258,38 +291,39 @@ int DBFile::GetNext (Record &fetchme, CNF &cnf, Record &literal) {
 
 }
 
-void DBFile::LoadPreference(string f_path) {
-    string newFilePath = f_path.substr(0,f_path.find_last_of('.'))+".pref";
+void DBFile::LoadPreference(char * newFilePath) {
     ifstream file;
     if (Utilities::checkfileExist(newFilePath)) {
         
-        cout << endl;
-        cout << "----------------------------------------------" << endl;
-        cout << "opening preference file located at :" << endl;
-        cout << newFilePath << endl;
-        cout << "----------------------------------------------" << endl;
+        // cout << endl;
+        // cout << "----------------------------------------------" << endl;
+        // cout << "opening preference file located at :" << endl;
+        // cout << newFilePath << endl;
+        // cout << "----------------------------------------------" << endl;
 
         file.open(newFilePath,ios::in);
         if(!file){
             cerr<<"Error in opening file..";
             exit(1);
         }
-        cout << myPreference.preferenceFilePath << endl;
         file.read((char*)&myPreference,sizeof(Preference));
 
-        cout << endl;
-        cout << "----------------------------------------------" << endl;
-        cout << "Preference values after read :" << endl;
-        cout << myPreference.preferenceFilePath << endl;
-        cout << "----------------------------------------------" << endl;
-
+        // cout << endl;
+        // cout << "----------------------------------------------" << endl;
+        // cout << "Preference values after read :" << endl;
+        // cout << myPreference.preferenceFilePath << endl;
+        // cout << "----------------------------------------------" << endl;
+        myPreference.preferenceFilePath = (char*)malloc(strlen(newFilePath) + 1); 
+        strcpy(myPreference.preferenceFilePath,newFilePath);
     }
     else {
-        myPreference.preferenceFilePath = newFilePath;
+        myPreference.preferenceFilePath = (char*) malloc(strlen(newFilePath) + 1); 
+        strcpy(myPreference.preferenceFilePath,newFilePath);
         myPreference.currentPage = 0;
         myPreference.currentRecordPosition = 0;
         myPreference.isPageFull = false;
         myPreference.pageBufferMode = IDLE;
+        myPreference.reWriteFlag= false;
     }
 }
 
