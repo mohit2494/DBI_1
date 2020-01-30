@@ -15,37 +15,37 @@
 /*************** Preference Class Definitions ******************/
 
 
-BufferMode Preference::getPageBufferMode() {
-    return this->pageBufferMode;
-}
+// BufferMode Preference::getPageBufferMode() {
+//     return this->pageBufferMode;
+// }
 
-void Preference::setPageBufferMode(BufferMode pageBufferMode) {
-    this->pageBufferMode = pageBufferMode;
-}
+// void Preference::setPageBufferMode(BufferMode pageBufferMode) {
+//     this->pageBufferMode = pageBufferMode;
+// }
 
-off_t Preference::getCurrentPage() {
-		return this->currentPage;
-}
+// off_t Preference::getCurrentPage() {
+// 		return this->currentPage;
+// }
 
-void Preference::setCurrentPage(off_t currentPage) {
-    this->currentPage = currentPage;
-}
+// void Preference::setCurrentPage(off_t currentPage) {
+//     this->currentPage = currentPage;
+// }
 
-bool Preference::isLastPageFullOrNot() {
-    return this->lastPageFullOrNot;
-}
+// bool Preference::isPageFull() {
+//     return this->isPageFull;
+// }
 
-void Preference::setLastPageFullOrNot(bool lastPageFullOrNot) {
-    this->lastPageFullOrNot = lastPageFullOrNot;
-}
+// void Preference::setisPageFull(bool isPageFull) {
+//     this->isPageFull = isPageFull;
+// }
 
-int Preference::getCurrentRecordPosition(){
-		return this->currentRecordPosition;
-}
+// int Preference::getCurrentRecordPosition(){
+// 		return this->currentRecordPosition;
+// }
 
-void Preference::setCurrentRecordPosition(int currentRecord) {
-		this->currentRecordPosition = currentRecord;
-}
+// void Preference::setCurrentRecordPosition(int currentRecord) {
+// 		this->currentRecordPosition = currentRecord;
+// }
 /**************** End of Preference Class ********************/
 
 
@@ -78,6 +78,12 @@ int DBFile::GetPageLocationToWrite() {
 
 int DBFile::GetPageLocationToRead() {
     return myPreference.currentPage -2;
+}
+
+int DBFile::GetPageLocationToReWrite(){
+    int pageLocation = myFile.GetLength();
+    return pageLocation == 2 ? 0 : pageLocation-1; 
+
 }
 
 
@@ -115,6 +121,7 @@ void DBFile::Add (Record &rec) {
         // add again to page
         this->myPage.Append(&rec);
     }
+    myPreference.allRecordsWritten=false;
 }
 
 
@@ -150,7 +157,7 @@ int DBFile::Open (const char *f_path) {
                 myPage.GetFirst(&myRecord);
             }
         }
-        else if(myPreference.lastPageFullOrNot){
+        else if(!myPreference.isPageFull){
             myFile.GetPage(&myPage,GetPageLocationToRead());
         }
         return 1;
@@ -160,8 +167,10 @@ int DBFile::Open (const char *f_path) {
 
 void DBFile::MoveFirst () {
     if (myFile.IsFileOpen()){
-        if(myPreference.pageBufferMode == WRITE && myPage.getNumRecs() > 0){
-            myFile.AddPage(&myPage,GetPageLocationToWrite());
+        if (myPreference.pageBufferMode == WRITE && myPage.getNumRecs() > 0){
+            if(!myPreference.allRecordsWritten){
+                myFile.AddPage(&myPage,GetPageLocationToReWrite());
+            }
             myPage.EmptyItOut();
         }
         myPreference.pageBufferMode = READ;
@@ -178,7 +187,9 @@ void DBFile::MoveFirst () {
 int DBFile::Close () {
     if(myPreference.pageBufferMode == WRITE && myPage.getNumRecs() > 0){
             myFile.AddPage(&myPage,GetPageLocationToWrite());
+            myPreference.isPageFull = false;
             myPreference.currentPage = myFile.Close();
+            myPreference.allRecordsWritten = true;
     }
     myPreference.currentRecordPosition = myPage.getNumRecs();
     DumpPreference();
@@ -187,8 +198,10 @@ int DBFile::Close () {
 
 int DBFile::GetNext (Record &fetchme) {
     if (myFile.IsFileOpen()){
-        if (myPreference.pageBufferMode == WRITE and myPage.getNumRecs() > 0){
-            myFile.AddPage(&myPage,GetPageLocationToWrite());
+        if (myPreference.pageBufferMode == WRITE && myPage.getNumRecs() > 0){
+            if(!myPreference.allRecordsWritten){
+                myFile.AddPage(&myPage,GetPageLocationToReWrite());
+            }
             myPage.EmptyItOut();
             myPreference.currentPage = myFile.GetLength();
             myPreference.currentRecordPosition = myPage.getNumRecs();
@@ -212,8 +225,10 @@ int DBFile::GetNext (Record &fetchme) {
 }
 
 int DBFile::GetNext (Record &fetchme, CNF &cnf, Record &literal) {
-    if (myPreference.pageBufferMode == WRITE and myPage.getNumRecs() > 0){
-            myFile.AddPage(&myPage,GetPageLocationToWrite());
+        if (myPreference.pageBufferMode == WRITE && myPage.getNumRecs() > 0){
+            if(!myPreference.allRecordsWritten){
+                myFile.AddPage(&myPage,GetPageLocationToReWrite());
+            }
             myPage.EmptyItOut();
             myPreference.currentPage = myFile.GetLength();
             myPreference.currentRecordPosition = myPage.getNumRecs();
@@ -248,7 +263,7 @@ void DBFile::LoadPreference(const char* filePath) {
         myPreference.preferenceFilePath = newFilePath;
         myPreference.currentPage = 0;
         myPreference.currentRecordPosition = 0;
-        myPreference.lastPageFullOrNot = false;
+        myPreference.isPageFull = false;
         myPreference.pageBufferMode = IDLE;
     }
 }

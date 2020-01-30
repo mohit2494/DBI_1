@@ -23,21 +23,23 @@ public:
 	// current page of transaction with the file
 	off_t currentPage;
 	// was the last page written full or not
-	bool lastPageFullOrNot;
+	bool isPageFull;
 	// Position of current record in current page
 	int currentRecordPosition;
 	// 
 	char * preferenceFilePath;
 
+	bool allRecordsWritten;
+
 	// relevant getters and setters
-	void setCurrentPage(off_t currentPage);
-	off_t getCurrentPage();
-	bool isLastPageFullOrNot();
-	void setLastPageFullOrNot(bool lastPageFullOrNot);
-	int getCurrentRecordPosition();
-	void setCurrentRecordPosition(int currentRecord);
-	BufferMode getPageBufferMode();
-	void setPageBufferMode(BufferMode pageBufferMode);
+	// void setCurrentPage(off_t currentPage);
+	// off_t getCurrentPage();
+	// bool isPageFull;
+	// void setisPageFull(bool isPageFull);
+	// int getCurrentRecordPosition();
+	// void setCurrentRecordPosition(int currentRecord);
+	// BufferMode getPageBufferMode();
+	// void setPageBufferMode(BufferMode pageBufferMode);
 };
 
 
@@ -60,6 +62,7 @@ public:
 	void DumpPreference();
 	int GetPageLocationToWrite();
 	int GetPageLocationToRead();
+	int GetPageLocationToReWrite();
 	void Load (Schema &myschema, const char *loadpath);
 	
 	/**
