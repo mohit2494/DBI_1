@@ -63,7 +63,8 @@ DBFile::~DBFile () {
 
 int DBFile::Create (const char *f_path, fType f_type, void *startup) {
     if (f_type == heap){
-            LoadPreference(f_path);
+            string s(f_path);
+            LoadPreference(s);
             char *fName = strdup(f_path);
             myFile.Open(0,fName);
             return 1;
@@ -227,8 +228,8 @@ int DBFile::GetNext (Record &fetchme) {
             }
         }
         myPreference.currentRecordPosition++;
-        // Schema nation ("catalog", "nation");
-        // fetchme.Print(&nation);
+        // Schema schema ("catalog", "lineitem");
+        // fetchme.Print(&schema);
         return 1;
     }
 }
@@ -257,10 +258,8 @@ int DBFile::GetNext (Record &fetchme, CNF &cnf, Record &literal) {
 
 }
 
-void DBFile::LoadPreference(const char* filePath) {
-    string filename(filePath);
-    string newFilePath = filename.substr(0,filename.find_last_of('.'))+".pref";
-
+void DBFile::LoadPreference(string f_path) {
+    string newFilePath = f_path.substr(0,f_path.find_last_of('.'))+".pref";
     ifstream file;
     if (Utilities::checkfileExist(newFilePath)) {
         
@@ -275,6 +274,7 @@ void DBFile::LoadPreference(const char* filePath) {
             cerr<<"Error in opening file..";
             exit(1);
         }
+        cout << myPreference.preferenceFilePath << endl;
         file.read((char*)&myPreference,sizeof(Preference));
 
         cout << endl;
@@ -296,8 +296,7 @@ void DBFile::LoadPreference(const char* filePath) {
 void DBFile::DumpPreference(){
     ofstream file;
     file.open(myPreference.preferenceFilePath,ios::out);
-    if(!file)
-    {
+    if(!file) {
       cerr<<"Error in opening file for writing.."<<endl;
       exit(1);
     }
