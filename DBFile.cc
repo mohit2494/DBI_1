@@ -55,6 +55,7 @@ DBFile::DBFile () {
     // initializing page count
     // holds the number of pages
     // DBFile holds in physical memory
+    
 }
 
 DBFile::~DBFile () {
@@ -63,9 +64,23 @@ DBFile::~DBFile () {
 
 int DBFile::Create (const char *f_path, fType f_type, void *startup) {
     if (f_type == heap){
-            char * fName = "/home/mk/Documents/uf docs/sem 2/Database Implementation/DBI/dbfiles/nation.pref";
+
+            // changing .bin extension to .pref for storing preferences.
+            string s(f_path);
+            string news = s.substr(0,s.find_last_of('.'))+".pref";
+            Utilities::Log("Inside DBFile Create, preference file path after replacing extension");
+            Utilities::Log(news);
+            char* finalString = new char[news.length()+1];
+            strcpy(finalString, news.c_str());
+
+            // opening file with given file extension
             myFile.Open(0,(char *)f_path);
-            LoadPreference(fName);            
+
+            // loading preferences
+            Utilities::Log("File path before calling LoadPreference ");
+            Utilities::Log(string(finalString));
+            LoadPreference(finalString);            
+
             return 1;
     }
     return 0;
@@ -176,9 +191,25 @@ void DBFile::Load (Schema &f_schema, const char *loadpath) {
 }
 
 int DBFile::Open (const char *f_path) {
-    char* fName = "/home/mk/Documents/uf docs/sem 2/Database Implementation/DBI/dbfiles/nation.pref";
+    
+    // changing .bin extension to .pref for storing preferences.
+    string s(f_path);
+    string news = s.substr(0,s.find_last_of('.'))+".pref";
+    Utilities::Log("Inside DBFile Open, preference file path after replacing extension");
+    Utilities::Log(news);
+    char* finalString = new char[news.length()+1];
+    strcpy(finalString, news.c_str());
+
+    // opening file using given path
+    Utilities::Log("Opening binary file using path :");
+    Utilities::Log(string(f_path));
     myFile.Open(1,(char *)f_path);
-    LoadPreference(fName);
+
+    // loading preferences
+    Utilities::Log("File path before calling LoadPreference ");
+    Utilities::Log(string(finalString));
+    LoadPreference(finalString);            
+
     if(myFile.IsFileOpen()){
         if( myPreference.pageBufferMode == READ){
             myFile.GetPage(&myPage,GetPageLocationToRead(myPreference.pageBufferMode));
@@ -234,6 +265,7 @@ int DBFile::Close () {
             myPreference.currentPage--;
     }
     DumpPreference();
+    return 1;
 }
 
 
@@ -261,8 +293,8 @@ int DBFile::GetNext (Record &fetchme) {
             }
         }
         myPreference.currentRecordPosition++;
-        // Schema schema ("catalog", "lineitem");
-        // fetchme.Print(&schema);
+        Schema schema ("catalog", "region");
+        fetchme.Print(&schema);
         return 1;
     }
 }
@@ -294,25 +326,14 @@ int DBFile::GetNext (Record &fetchme, CNF &cnf, Record &literal) {
 void DBFile::LoadPreference(char * newFilePath) {
     ifstream file;
     if (Utilities::checkfileExist(newFilePath)) {
-        
-        // cout << endl;
-        // cout << "----------------------------------------------" << endl;
-        // cout << "opening preference file located at :" << endl;
-        // cout << newFilePath << endl;
-        // cout << "----------------------------------------------" << endl;
-
-        file.open(newFilePath,ios::in);
+        Utilities::Log("Opening preference file located at : "+ std::string(newFilePath));
+        file.open(newFilePath,ios::in); 
         if(!file){
+            Utilities::Log("Error opening preference file at : "+ std::string(newFilePath));
             cerr<<"Error in opening file..";
             exit(1);
         }
         file.read((char*)&myPreference,sizeof(Preference));
-
-        // cout << endl;
-        // cout << "----------------------------------------------" << endl;
-        // cout << "Preference values after read :" << endl;
-        // cout << myPreference.preferenceFilePath << endl;
-        // cout << "----------------------------------------------" << endl;
         myPreference.preferenceFilePath = (char*)malloc(strlen(newFilePath) + 1); 
         strcpy(myPreference.preferenceFilePath,newFilePath);
     }
@@ -324,28 +345,22 @@ void DBFile::LoadPreference(char * newFilePath) {
         myPreference.isPageFull = false;
         myPreference.pageBufferMode = IDLE;
         myPreference.reWriteFlag= false;
+        myPreference.allRecordsWritten = true;
     }
+    Utilities::Log("Preferences Loaded..!");
 }
 
 void DBFile::DumpPreference(){
+    Utilities::Log("Dumping preferences at :"+ std::string(myPreference.preferenceFilePath));
     ofstream file;
     file.open(myPreference.preferenceFilePath,ios::out);
     if(!file) {
-      cerr<<"Error in opening file for writing.."<<endl;
-      exit(1);
+        Utilities::Log("Error in dumping preferences at :"+ std::string(myPreference.preferenceFilePath));
+        cerr<<"Error in opening file for writing.."<<endl;
+        exit(1);
     }
-    cout << endl;
-    cout << "----------------------------------------------" << endl;
-    cout << "Preference values before writing :" << endl;
-    cout << myPreference.preferenceFilePath << endl;
-    cout << "----------------------------------------------" << endl;
+    Utilities::Log("Dumping preferences at :"+ std::string(myPreference.preferenceFilePath));
     file.write((char*)&myPreference,sizeof(Preference));
     file.close();
-
-
-    // string filename(myPreference.preferenceFilePath);
-    // string newFilePath = filename.substr(0,filename.find_last_of('.'))+".bin";
-    // const char* somePath = newFilePath.c_str();
-    // LoadPreference(somePath);
-
+    Utilities::Log("Preferences Dumped!...");
 }
