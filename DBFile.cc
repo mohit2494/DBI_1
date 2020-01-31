@@ -14,7 +14,6 @@
 
 /*************** Preference Class Definitions ******************/
 
-
 // BufferMode Preference::getPageBufferMode() {
 //     return this->pageBufferMode;
 // }
@@ -52,17 +51,13 @@
 
 // stub file .. replace it with your own DBFile.cc
 DBFile::DBFile () {
-    // initializing page count
-    // holds the number of pages
-    // DBFile holds in physical memory
-    
 }
 
 DBFile::~DBFile () {
-    
 }
 
 int DBFile::Create (const char *f_path, fType f_type, void *startup) {
+    // check if the file type is correct
     if (f_type == heap){
 
             // changing .bin extension to .pref for storing preferences.
@@ -122,18 +117,20 @@ int DBFile::GetPageLocationToReWrite(){
 Next. 
 **/ 
 void DBFile::Add (Record &rec) {
-    
+     // Flush the page data from which you are reading and load the last page to start appending records.
      if (myPreference.pageBufferMode == READ ) {
             if( myPage.getNumRecs() > 0){
                 myPage.EmptyItOut();
             }
+            // open page the last written page to start rewriting
             myFile.GetPage(&myPage,GetPageLocationToReWrite());
             myPreference.currentPage = GetPageLocationToReWrite();
             myPreference.currentRecordPosition = myPage.getNumRecs();
             myPreference.reWriteFlag = true;
 
-            // open page for write
     }
+
+    // set DBFile in write mode
     myPreference.pageBufferMode = WRITE;
     
     // add record to current page 
@@ -142,7 +139,7 @@ void DBFile::Add (Record &rec) {
         
         cout << "DBFile page full, writing to disk ...." << myFile.GetLength() << endl;
     
-        // if page is full, then write page to disk
+        // if page is full, then write page to disk. Check if the date needs to rewritten or not
         if (myPreference.reWriteFlag){
             this->myFile.AddPage(&this->myPage,GetPageLocationToReWrite());
             myPreference.reWriteFlag = false;
@@ -170,20 +167,21 @@ void DBFile::Add (Record &rec) {
 void DBFile::Load (Schema &f_schema, const char *loadpath) {
     Record temp;
     if (myFile.IsFileOpen()){
+        // Flush the page data from which you are reading and load the last page to start appending records.
         if (myPreference.pageBufferMode == READ ) {
             if( myPage.getNumRecs() > 0){
                 myPage.EmptyItOut();
             }
+            // open page for write
             myFile.GetPage(&myPage,GetPageLocationToReWrite());
             myPreference.currentPage = GetPageLocationToReWrite();
             myPreference.currentRecordPosition = myPage.getNumRecs();
             myPreference.reWriteFlag = true;
-
-            // open page for write
         }
+        // set DBFile in WRITE Mode
         myPreference.pageBufferMode = WRITE;
         FILE *tableFile = fopen (loadpath, "r"); 
-        // while there are records, keep adding them to the DBFile
+        // while there are records, keep adding them to the DBFile. Reuse Add function.
         while(temp.SuckNextRecord(&f_schema, tableFile)==1) {
             Add(temp);
         }
@@ -211,6 +209,7 @@ int DBFile::Open (const char *f_path) {
     LoadPreference(finalString);            
 
     if(myFile.IsFileOpen()){
+        // Load the last saved state from preference.
         if( myPreference.pageBufferMode == READ){
             myFile.GetPage(&myPage,GetPageLocationToRead(myPreference.pageBufferMode));
             Record myRecord;
@@ -272,34 +271,42 @@ int DBFile::Close () {
 
 int DBFile::GetNext (Record &fetchme) {
     if (myFile.IsFileOpen()){
+        // Flush the Page Buffer if the WRITE mode was active.
         if (myPreference.pageBufferMode == WRITE && myPage.getNumRecs() > 0){
             if(!myPreference.allRecordsWritten){
                 myFile.AddPage(&myPage,GetPageLocationToReWrite());
             }
+            //  Only Write Records if new records were added.
             myPage.EmptyItOut();
             myPreference.currentPage = myFile.GetLength();
             myPreference.currentRecordPosition = myPage.getNumRecs();
             return 0;
         }
         myPreference.pageBufferMode = READ;
+        // loop till the page is empty and if empty load the next page to read
         if (!myPage.GetFirst(&fetchme)) {
+            // check if all records are read.
             if (myPreference.currentPage+1 >= myFile.GetLength()){
                return 0;
             }
             else{
+                // load new page and get its first record.
                 myFile.GetPage(&myPage,GetPageLocationToRead(myPreference.pageBufferMode));
                 myPage.GetFirst(&fetchme);
                 myPreference.currentPage++;
                 myPreference.currentRecordPosition = 0;
             }
         }
+        // increament counter for each read.
         myPreference.currentRecordPosition++;
         return 1;
     }
 }
 
 int DBFile::GetNext (Record &fetchme, CNF &cnf, Record &literal) {
+        // Flush the Page Buffer if the WRITE mode was active.
         if (myPreference.pageBufferMode == WRITE && myPage.getNumRecs() > 0){
+            //  Only Write Records if new records were added.
             if(!myPreference.allRecordsWritten){
                 myFile.AddPage(&myPage,GetPageLocationToReWrite());
             }
@@ -310,6 +317,7 @@ int DBFile::GetNext (Record &fetchme, CNF &cnf, Record &literal) {
         }
         bool readFlag ;
         bool compareFlag;
+        // loop until all records are read or if some record maches the filter CNF
         do{
             readFlag = GetNext(fetchme);
             compareFlag = myCompEng.Compare (&fetchme, &literal, &cnf);
