@@ -56,7 +56,7 @@ private:
 	ComparisonEngine myCompEng;
 	char* myFilePath;
 	off_t currentPageCount;
-
+	
 public:
 	DBFile ();
     ~DBFile ();
@@ -66,6 +66,7 @@ public:
 	int GetPageLocationToRead(BufferMode mode);
 	int GetPageLocationToReWrite();
 	void Load (Schema &myschema, const char *loadpath);
+	bool isFileOpen;
 	
 	/**
 		Each DBFile instance has a “pointer” to the current record 
