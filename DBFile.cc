@@ -182,44 +182,25 @@ void DBFile::Load (Schema &f_schema, const char *loadpath) {
     }
 
     Record temp;
-    if (myFile.IsFileOpen()){
-        // Flush the page data from which you are reading and load the last page to start appending records.
-        if (myPreference.pageBufferMode == READ ) {
-            if( myPage.getNumRecs() > 0){
-                myPage.EmptyItOut();
-            }
-            // open page for write
-            myFile.GetPage(&myPage,GetPageLocationToReWrite());
-            myPreference.currentPage = GetPageLocationToReWrite();
-            myPreference.currentRecordPosition = myPage.getNumRecs();
-            myPreference.reWriteFlag = true;
-        }
-        // set DBFile in WRITE Mode
-        myPreference.pageBufferMode = WRITE;
-        FILE *tableFile = fopen (loadpath, "r"); 
-        // while there are records, keep adding them to the DBFile. Reuse Add function.
-        while(temp.SuckNextRecord(&f_schema, tableFile)==1) {
-            Add(temp);
-        }
+    // Flush the page data from which you are reading and load the last page to start appending records.
     if (myPreference.pageBufferMode == READ ) {
         if( myPage.getNumRecs() > 0){
             myPage.EmptyItOut();
         }
+        // open page for write
         myFile.GetPage(&myPage,GetPageLocationToReWrite());
         myPreference.currentPage = GetPageLocationToReWrite();
         myPreference.currentRecordPosition = myPage.getNumRecs();
         myPreference.reWriteFlag = true;
-
-        // open page for write
     }
-    
+    // set DBFile in WRITE Mode
     myPreference.pageBufferMode = WRITE;
     FILE *tableFile = fopen (loadpath, "r"); 
-    
-    // while there are records, keep adding them to the DBFile
+    // while there are records, keep adding them to the DBFile. Reuse Add function.
     while(temp.SuckNextRecord(&f_schema, tableFile)==1) {
         Add(temp);
     }
+    
 }
 
 int DBFile::Open (const char *f_path) {
