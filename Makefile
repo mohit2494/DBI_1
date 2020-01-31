@@ -6,6 +6,9 @@ ifdef linux
 tag = -n
 endif
 
+myGtest: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o myGtest.o
+		$(CC) -o myGtest.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o myGtest.o -lfl -lpthread -lgtest
+
 test.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o test.o
 	$(CC) -o test.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o test.o -lfl
 	
@@ -44,6 +47,9 @@ y.tab.o: Parser.y
 lex.yy.o: Lexer.l
 	lex  Lexer.l
 	gcc  -c lex.yy.c
+
+myGtest.o: myGtest.cc
+	$(CC) -g -c myGtest.cc
 
 clean: 
 	rm -f *.o

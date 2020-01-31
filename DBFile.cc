@@ -68,8 +68,8 @@ int DBFile::Create (const char *f_path, fType f_type, void *startup) {
             // changing .bin extension to .pref for storing preferences.
             string s(f_path);
             string news = s.substr(0,s.find_last_of('.'))+".pref";
-            Utilities::Log("Inside DBFile Create, preference file path after replacing extension");
-            Utilities::Log(news);
+            //Utilities::Log("Inside DBFile Create, preference file path after replacing extension");
+            //Utilities::Log(news);
             char* finalString = new char[news.length()+1];
             strcpy(finalString, news.c_str());
 
@@ -77,8 +77,8 @@ int DBFile::Create (const char *f_path, fType f_type, void *startup) {
             myFile.Open(0,(char *)f_path);
 
             // loading preferences
-            Utilities::Log("File path before calling LoadPreference ");
-            Utilities::Log(string(finalString));
+            //Utilities::Log("File path before calling LoadPreference ");
+            //Utilities::Log(string(finalString));
             LoadPreference(finalString);            
 
             return 1;
@@ -195,19 +195,19 @@ int DBFile::Open (const char *f_path) {
     // changing .bin extension to .pref for storing preferences.
     string s(f_path);
     string news = s.substr(0,s.find_last_of('.'))+".pref";
-    Utilities::Log("Inside DBFile Open, preference file path after replacing extension");
-    Utilities::Log(news);
+    //Utilities::Log("Inside DBFile Open, preference file path after replacing extension");
+    //Utilities::Log(news);
     char* finalString = new char[news.length()+1];
     strcpy(finalString, news.c_str());
 
     // opening file using given path
-    Utilities::Log("Opening binary file using path :");
-    Utilities::Log(string(f_path));
+    //Utilities::Log("Opening binary file using path :");
+    //Utilities::Log(string(f_path));
     myFile.Open(1,(char *)f_path);
 
     // loading preferences
-    Utilities::Log("File path before calling LoadPreference ");
-    Utilities::Log(string(finalString));
+    //Utilities::Log("File path before calling LoadPreference ");
+    //Utilities::Log(string(finalString));
     LoadPreference(finalString);            
 
     if(myFile.IsFileOpen()){
@@ -293,8 +293,6 @@ int DBFile::GetNext (Record &fetchme) {
             }
         }
         myPreference.currentRecordPosition++;
-        Schema schema ("catalog", "region");
-        fetchme.Print(&schema);
         return 1;
     }
 }
@@ -326,10 +324,10 @@ int DBFile::GetNext (Record &fetchme, CNF &cnf, Record &literal) {
 void DBFile::LoadPreference(char * newFilePath) {
     ifstream file;
     if (Utilities::checkfileExist(newFilePath)) {
-        Utilities::Log("Opening preference file located at : "+ std::string(newFilePath));
+        //Utilities::Log("Opening preference file located at : "+ std::string(newFilePath));
         file.open(newFilePath,ios::in); 
         if(!file){
-            Utilities::Log("Error opening preference file at : "+ std::string(newFilePath));
+            //Utilities::Log("Error opening preference file at : "+ std::string(newFilePath));
             cerr<<"Error in opening file..";
             exit(1);
         }
@@ -347,20 +345,20 @@ void DBFile::LoadPreference(char * newFilePath) {
         myPreference.reWriteFlag= false;
         myPreference.allRecordsWritten = true;
     }
-    Utilities::Log("Preferences Loaded..!");
+    //Utilities::Log("Preferences Loaded..!");
 }
 
 void DBFile::DumpPreference(){
-    Utilities::Log("Dumping preferences at :"+ std::string(myPreference.preferenceFilePath));
+    //Utilities::Log("Dumping preferences at :"+ std::string(myPreference.preferenceFilePath));
     ofstream file;
     file.open(myPreference.preferenceFilePath,ios::out);
     if(!file) {
-        Utilities::Log("Error in dumping preferences at :"+ std::string(myPreference.preferenceFilePath));
+        //Utilities::Log("Error in dumping preferences at :"+ std::string(myPreference.preferenceFilePath));
         cerr<<"Error in opening file for writing.."<<endl;
         exit(1);
     }
-    Utilities::Log("Dumping preferences at :"+ std::string(myPreference.preferenceFilePath));
+    //Utilities::Log("Dumping preferences at :"+ std::string(myPreference.preferenceFilePath));
     file.write((char*)&myPreference,sizeof(Preference));
     file.close();
-    Utilities::Log("Preferences Dumped!...");
+    //Utilities::Log("Preferences Dumped!...");
 }

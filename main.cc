@@ -2,6 +2,7 @@
 #include "DBFile.h"
 #include "test.h"
 #include "string.h"
+#include "Utilities.h"
 
 // make sure that the file path/dir information below is correct
 const char *dbfile_dir = "/home/mk/Documents/uf docs/sem 2/Database Implementation/DBI/dbfiles/"; // dir where binary heap files should be stored
@@ -147,7 +148,10 @@ int main () {
 	rel = rel_ptr [findx - 1];
 	test = test_ptr [tindx - 1];
 
-	test ();
+	//Utilities::Log("\n\n\n");
+	//Utilities::Log("New Debugging Session");
+    //Utilities::Log("------------------------------------------------------------------------");
 
+	test ();
 	cleanup ();
 }
