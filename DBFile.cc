@@ -213,6 +213,7 @@ int DBFile::Open (const char *f_path) {
     if(myFile.IsFileOpen()){
         if( myPreference.pageBufferMode == READ){
             myFile.GetPage(&myPage,GetPageLocationToRead(myPreference.pageBufferMode));
+            Record myRecord;
             for (int i = 0 ; i < myPreference.currentRecordPosition; i++){
                 myPage.GetFirst(&myRecord);
             }
