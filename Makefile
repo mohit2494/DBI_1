@@ -6,18 +6,18 @@ ifdef linux
 tag = -n
 endif
 
-gtest: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o gtest.o
-		$(CC) -o gtest.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o gtest.o -lfl -lpthread -lgtest
-
 test.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o test.o
 	$(CC) -o test.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o test.o -lfl
 	
 main: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o	y.tab.o lex.yy.o main.o
 	$(CC) -o main Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o	y.tab.o lex.yy.o main.o -lfl
 
-gtest.o: myGtest.cc
+myGtest.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o myGtest.o
+	$(CC) -o myGtest.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o DBFile.o y.tab.o lex.yy.o myGtest.o -lfl -lpthread -lgtest
+
+myGtest.o: myGtest.cc
 	$(CC) -g -c myGtest.cc
-		
+
 test.o: test.cc
 	$(CC) -g -c test.cc
 
