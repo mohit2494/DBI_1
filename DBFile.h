@@ -58,10 +58,13 @@ public:
 
 class DBFile {
 private:
-//    
+//  Used to read & write page to the disk.
     File myFile;
+//  Used as a buffer to read and write data.
     Page myPage;
+//  Used to keep track of the state.
     Preference myPreference;
+//  Used to keep track of the state.
 	ComparisonEngine myCompEng;
 
 public:
