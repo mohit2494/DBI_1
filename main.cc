@@ -2,11 +2,10 @@
 #include "DBFile.h"
 #include "test.h"
 #include "string.h"
-#include "Utilities.h"
 
 // make sure that the file path/dir information below is correct
-const char *dbfile_dir = "/home/mk/Documents/uf docs/sem 2/Database Implementation/DBI/dbfiles/"; // dir where binary heap files should be stored
-const char *tpch_dir ="/home/mk/Documents/uf docs/sem 2/Database Implementation/git/tpch-dbgen/"; // dir where dbgen tpch files (extension *.tbl) can be found
+const char *dbfile_dir = "/Users/sathyasairam/DatabaseSystemsImplemenataion/Tables/"; // dir where binary heap files should be stored
+const char *tpch_dir ="/Users/sathyasairam/tpch-dbgen/"; // dir where dbgen tpch files (extension *.tbl) can be found
 const char *catalog_path = "catalog"; // full path of the catalog file
 
 using namespace std;
@@ -29,64 +28,25 @@ void test1 () {
 	dbfile.Close ();
 }
 
-// sequential scan of a DBfile 
-void test2 () {
+ void test2 () {
 
-	DBFile dbfile;
-	dbfile.Open (rel->path());
-	dbfile.MoveFirst ();
+ 	DBFile dbfile;
+ 	dbfile.Open (rel->path());
+ 	dbfile.MoveFirst ();
 
-	Record temp;
+ 	Record temp;
 
-	int counter = 0;
-	while (dbfile.GetNext(temp) == 1) {
-		counter += 1;
-		temp.Print (rel->schema());
-		if (counter == 15) {
-			break;
-		}
-	}
-	cout << " scanned " << counter << " recs \n";
-	dbfile.Close ();
-
-	dbfile.Open (rel->path());
-	 counter = 0;
-	while (dbfile.GetNext(temp) == 1) {
-		counter += 1;
-		temp.Print (rel->schema());
-	}
-	cout << " scanned " << counter << " recs \n";
-	dbfile.Close();
-
-	dbfile.Open (rel->path());
-	char tbl_path[100]; // construct path of the tpch flat text file
-	sprintf (tbl_path, "%s%s.tbl", tpch_dir, rel->name()); 
-	cout << " tpch file will be loaded from " << tbl_path << endl;
-	const char *tabl_path_dup = strdup(tbl_path);
-
-	dbfile.Load (*(rel->schema ()), tabl_path_dup);
-	dbfile.Close ();
-}
-
-// void test2 () {
-
-// 	DBFile dbfile;
-// 	dbfile.Open (rel->path());
-// 	dbfile.MoveFirst ();
-
-// 	Record temp;
-
-// 	int counter = 0;
-// 	while (dbfile.GetNext(temp) == 1) {
-// 		counter += 1;
+ 	int counter = 0;
+ 	while (dbfile.GetNext(temp) == 1) {
+ 		counter += 1;
 // 		temp.Print (rel->schema());
-// 		if (counter % 10000 == 0) {
-// 			cout << counter << "\n";
-// 		}
-// 	}
-// 	cout << " scanned " << counter << " recs \n";
-// 	dbfile.Close ();
-// }
+ 		if (counter % 1000000 == 0) {
+ 			cout << counter << "\n";
+ 		}
+ 	}
+ 	cout << " scanned " << counter << " recs \n";
+ 	dbfile.Close ();
+ }
 
 // scan of a DBfile and apply a filter predicate
 void test3 () {

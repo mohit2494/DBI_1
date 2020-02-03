@@ -137,7 +137,7 @@ void DBFile::Add (Record &rec) {
     // check if the page is full
     if(!this->myPage.Append(&rec)) {
         
-        cout << "DBFile page full, writing to disk ...." << myFile.GetLength() << endl;
+//        cout << "DBFile page full, writing to disk ...." << myFile.GetLength() << endl;
     
         // if page is full, then write page to disk. Check if the date needs to rewritten or not
         if (myPreference.reWriteFlag){

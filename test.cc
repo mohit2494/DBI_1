@@ -1,7 +1,6 @@
 #include <iostream>
 #include "DBFile.h"
 #include "test.h"
-
 // make sure that the file path/dir information below is correct
 const char *dbfile_dir = "../"; // dir where binary heap files should be stored
 const char *tpch_dir ="../tpch-dbgen"; // dir where dbgen tpch files (extension *.tbl) can be found

@@ -58,6 +58,7 @@ public:
 
 class DBFile {
 private:
+//    
     File myFile;
     Page myPage;
     Preference myPreference;

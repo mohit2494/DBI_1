@@ -166,7 +166,7 @@ File :: ~File () {
 
 
 void File :: GetPage (Page *putItHere, off_t whichPage) {
-	cout<<"Reading Page"<<" Which Page: "<<whichPage<<" Cur Length : "<<curLength<<endl;
+//	cout<<"Reading Page"<<" Which Page: "<<whichPage<<" Cur Length : "<<curLength<<endl;
 
 	// this is because the first page has no data
 	whichPage++;
@@ -194,7 +194,7 @@ void File :: GetPage (Page *putItHere, off_t whichPage) {
 
 
 void File :: AddPage (Page *addMe, off_t whichPage) {
-	cout<<"Writing Page"<<" Which Page: "<<whichPage<<" Cur Length : "<<curLength<<endl;
+//	cout<<"Writing Page"<<" Which Page: "<<whichPage<<" Cur Length : "<<curLength<<endl;
 	// this is because the first page has no data
 	whichPage++;
 
