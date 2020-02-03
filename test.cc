@@ -20,8 +20,8 @@ void test1 () {
 	char tbl_path[100]; // construct path of the tpch flat text file
 	sprintf (tbl_path, "%s%s.tbl", tpch_dir, rel->name()); 
 	cout << " tpch file will be loaded from " << tbl_path << endl;
-
-	dbfile.Load (*(rel->schema ()), tbl_path);
+    const char *tabl_path_dup = strdup(tbl_path);
+    dbfile.Load (*(rel->schema ()), tabl_path_dup);
 	dbfile.Close ();
 }
 
