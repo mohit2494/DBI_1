@@ -1,10 +1,9 @@
 #include <iostream>
 #include "DBFile.h"
 #include "test.h"
-
 // make sure that the file path/dir information below is correct
-const char *dbfile_dir = ""; // dir where binary heap files should be stored
-const char *tpch_dir ="/cise/tmp/dbi_sp11/DATA/10M/"; // dir where dbgen tpch files (extension *.tbl) can be found
+const char *dbfile_dir = "../"; // dir where binary heap files should be stored
+const char *tpch_dir ="../tpch-dbgen"; // dir where dbgen tpch files (extension *.tbl) can be found
 const char *catalog_path = "catalog"; // full path of the catalog file
 
 using namespace std;
@@ -21,8 +20,8 @@ void test1 () {
 	char tbl_path[100]; // construct path of the tpch flat text file
 	sprintf (tbl_path, "%s%s.tbl", tpch_dir, rel->name()); 
 	cout << " tpch file will be loaded from " << tbl_path << endl;
-
-	dbfile.Load (*(rel->schema ()), tbl_path);
+    const char *tabl_path_dup = strdup(tbl_path);
+    dbfile.Load (*(rel->schema ()), tabl_path_dup);
 	dbfile.Close ();
 }
 

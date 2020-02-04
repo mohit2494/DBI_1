@@ -104,10 +104,4 @@ q11
 
 
 q12
-(l_orderkey > 100) AND
-(l_orderkey < 1000) AND
-(l_partkey > 100) AND
-(l_partkey < 5000) AND
-(l_shipmode = 'AIR') AND
-(l_linestatus = 'F') AND
-(l_tax < 0.07)
+(l_orderkey > 100) AND (l_orderkey < 1000) AND (l_partkey > 100) AND (l_partkey < 5000) AND (l_shipmode = 'AIR') AND (l_linestatus = 'F') AND (l_tax < 0.07)
